@@ -80,7 +80,7 @@ export interface ContentPlan {
   totalPages: number;
 }
 
-export type ApiProviderId = 'gemini' | 'claude' | 'openai';
+export type ApiProviderId = 'gemini' | 'claude' | 'openai' | 'groq' | 'openrouter';
 
 export type SocialPlatform = 'linkedin' | 'twitter' | 'facebook' | 'instagram';
 
@@ -159,7 +159,18 @@ export interface AllData {
 
 export interface ApiKeys {
     gemini?: string;
-    // Future providers can be added here
-    // claude?: string;
-    // openai?: string;
+    claude?: string;
+    openai?: string;
+    groq?: string;
+    openrouter?: string;
+}
+
+export interface Project {
+    id: string;
+    name: string;
+    website: string;
+    industry: string;
+    createdAt: string;
+    lastModified: string;
+    data: AllData;
 }

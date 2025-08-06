@@ -31,61 +31,106 @@ export const ApiManagerModal: React.FC<ApiManagerModalProps> = ({ isOpen, onClos
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-2xl relative" onClick={e => e.stopPropagation()}>
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">API Key Manager</h2>
-        <p className="text-gray-600 mb-6">
-            Manage API keys for different AI providers. Your keys are saved locally and are never sent to our servers.
-        </p>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto relative" onClick={e => e.stopPropagation()}>
+        <div className="sticky top-0 bg-white rounded-t-2xl border-b border-gray-200 p-6">
+          <div className="flex justify-between items-start">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">🔑 API Key Manager</h2>
+              <p className="text-gray-600">
+                Add API keys to unlock AI-powered SEO generation. Keys are stored locally in your browser.
+              </p>
+            </div>
+            <button 
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 text-2xl font-bold"
+            >
+              ×
+            </button>
+          </div>
+        </div>
         
-        <div className="space-y-6">
+        <div className="p-6">
+          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <h3 className="font-bold text-blue-800 mb-2">🚀 Quick Start</h3>
+            <p className="text-blue-700 text-sm">
+              For immediate use, get a free <strong>Google Gemini API key</strong> (recommended). 
+              More providers coming soon!
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {API_PROVIDERS.map(provider => (
-                <div key={provider.id} className={`p-5 rounded-lg border-2 ${provider.rank === 1 ? 'border-brand-primary-start' : 'border-gray-200'} ${!provider.isEnabled ? 'opacity-50' : ''}`}>
-                    <div className="flex justify-between items-start">
-                        <div>
-                             <h3 className="text-lg font-bold text-gray-800">{provider.name}</h3>
-                             <span className={`text-xs font-bold py-0.5 px-2 rounded-full ${provider.rank === 1 ? 'bg-brand-primary-start/20 text-brand-primary-start' : 'bg-gray-200 text-gray-600'}`}>
-                                {provider.rank}{provider.rank === 1 ? 'st' : 'th'} Choice
-                             </span>
-                        </div>
-                        <a href={provider.getApiKeyUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-brand-primary-start hover:underline font-semibold">
-                            Get API Key
-                        </a>
-                    </div>
-
-                    <div className="mt-4">
-                        <label htmlFor={`${provider.id}-key`} className="block text-sm font-bold text-gray-700 mb-2">
-                           Your {provider.name} API Key
-                        </label>
-                        <input
-                            id={`${provider.id}-key`}
-                            type="password"
-                            value={localKeys[provider.id] || ''}
-                            onChange={(e) => handleKeyChange(provider.id, e.target.value)}
-                            className="w-full py-3 px-4 border-2 border-gray-300 rounded-xl transition duration-300 focus:outline-none focus:ring-2 focus:ring-brand-primary-start focus:border-transparent disabled:bg-gray-100"
-                            placeholder={provider.isEnabled ? `Enter your ${provider.name} key` : "Coming Soon"}
-                            disabled={!provider.isEnabled}
-                        />
-                    </div>
-                    <p className="text-xs text-gray-500 mt-2">
-                        <strong>Free Tier:</strong> {provider.freeTierInfo}
-                    </p>
+              <div key={provider.id} className={`p-4 rounded-lg border-2 transition-all ${
+                provider.rank === 1 ? 'border-brand-primary-start bg-blue-50' : 
+                provider.isEnabled ? 'border-green-300 bg-green-50' : 'border-gray-200 bg-gray-50'
+              } ${!provider.isEnabled ? 'opacity-60' : ''}`}>
+                <div className="flex justify-between items-start mb-3">
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-800">{provider.name}</h3>
+                    <span className={`text-xs font-bold py-1 px-2 rounded-full ${
+                      provider.rank === 1 ? 'bg-blue-100 text-blue-800' : 
+                      provider.isEnabled ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'
+                    }`}>
+                      {provider.isEnabled ? `#${provider.rank} Choice` : 'Coming Soon'}
+                    </span>
+                  </div>
+                  {provider.isEnabled && (
+                    <a 
+                      href={provider.getApiKeyUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="text-sm bg-brand-primary-start text-white px-3 py-1 rounded-full hover:bg-brand-primary-end transition-colors"
+                    >
+                      Get Key
+                    </a>
+                  )}
                 </div>
+
+                <div className="mb-3">
+                  <input
+                    id={`${provider.id}-key`}
+                    type="password"
+                    value={localKeys[provider.id] || ''}
+                    onChange={(e) => handleKeyChange(provider.id, e.target.value)}
+                    className="w-full py-2 px-3 border-2 border-gray-300 rounded-lg text-sm transition duration-300 focus:outline-none focus:ring-2 focus:ring-brand-primary-start focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    placeholder={provider.isEnabled ? `Enter ${provider.name} API key...` : "Coming soon"}
+                    disabled={!provider.isEnabled}
+                  />
+                </div>
+                
+                <p className="text-xs text-gray-600">
+                  <strong>Free Tier:</strong> {provider.freeTierInfo}
+                </p>
+              </div>
             ))}
+          </div>
+
+          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+            <h4 className="font-bold text-gray-800 mb-2">🔒 Privacy & Security</h4>
+            <ul className="text-sm text-gray-600 space-y-1">
+              <li>• API keys are stored locally in your browser only</li>
+              <li>• Keys are never sent to our servers</li>
+              <li>• You can clear them anytime from browser settings</li>
+              <li>• Use HTTPS in production for maximum security</li>
+            </ul>
+          </div>
         </div>
 
-        <div className="flex justify-end gap-4 mt-8">
-          <button
-            onClick={onClose}
-            className={`${baseButtonClasses} bg-gray-200 text-gray-700 hover:bg-gray-300 !py-3 !px-6`}
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSave}
-            className={`${baseButtonClasses} ${primaryButtonClasses} !py-3 !px-6`}
-          >
-            Save Keys
-          </button>
+        <div className="sticky bottom-0 bg-white rounded-b-2xl border-t border-gray-200 p-6">
+          <div className="flex justify-end gap-3">
+            <button
+              onClick={onClose}
+              className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSave}
+              className="px-6 py-2 bg-brand-primary-start text-white rounded-lg hover:bg-brand-primary-end transition-colors"
+            >
+              Save API Keys
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -73,23 +73,39 @@ export const API_PROVIDERS: ApiProviderConfig[] = [
         id: 'gemini',
         name: 'Google Gemini',
         rank: 1,
-        freeTierInfo: 'Generous free tier (e.g., 60 requests per minute with gemini-2.5-flash) suitable for most users. Check official site for current limits.',
+        freeTierInfo: 'Generous free tier with 60 requests/minute. Best for production use.',
         getApiKeyUrl: 'https://aistudio.google.com/app/apikey',
         isEnabled: true,
     },
     {
+        id: 'groq',
+        name: 'Groq (Llama 3)',
+        rank: 2,
+        freeTierInfo: 'Free tier with ultra-fast inference speed. Great alternative.',
+        getApiKeyUrl: 'https://console.groq.com/keys',
+        isEnabled: false, // To be enabled when service is implemented
+    },
+    {
+        id: 'openrouter',
+        name: 'OpenRouter (Qwen/Kimi)',
+        rank: 3,
+        freeTierInfo: 'Access to multiple free models including Qwen and Kimi.',
+        getApiKeyUrl: 'https://openrouter.ai/keys',
+        isEnabled: false, // To be enabled when service is implemented
+    },
+    {
         id: 'claude',
         name: 'Anthropic Claude',
-        rank: 2,
-        freeTierInfo: 'Free tier credits are available upon signup. Ideal for creative text generation.',
+        rank: 4,
+        freeTierInfo: 'Free tier credits available. Excellent for creative content.',
         getApiKeyUrl: 'https://console.anthropic.com/',
         isEnabled: false, // To be enabled when service is implemented
     },
     {
         id: 'openai',
         name: 'OpenAI GPT',
-        rank: 3,
-        freeTierInfo: 'Provides free credits for new users. A powerful and widely-used alternative.',
+        rank: 5,
+        freeTierInfo: 'Paid service with free credits for new users.',
         getApiKeyUrl: 'https://platform.openai.com/api-keys',
         isEnabled: false, // To be enabled when service is implemented
     }

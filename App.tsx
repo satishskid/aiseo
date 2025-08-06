@@ -13,6 +13,9 @@ import { CalendarEventModal } from './components/CalendarEventModal';
 import { PerformanceInputForm } from './components/PerformanceInputForm';
 import { DemoGenerationModal } from './components/DemoGenerationModal';
 import { SalesCoachPanel } from './components/SalesCoachPanel';
+import { ActionableTechnicalSeo } from './components/ActionableTechnicalSeo';
+import { ActionableConversionPlan } from './components/ActionableConversionPlan';
+import { ProjectManager } from './components/ProjectManager';
 import { useApiKey } from './context/ApiKeyContext';
 import { GeminiService, AIService } from './services/aiService';
 import { SOCIAL_PLATFORMS, baseButtonClasses, secondaryButtonClasses } from './constants';
@@ -33,7 +36,8 @@ import type {
   PerformanceAnalysis,
   AllData,
   SeoAudit,
-  SalesInsight
+  SalesInsight,
+  Project
 } from './types';
 
 const App: React.FC = () => {
@@ -74,6 +78,10 @@ const App: React.FC = () => {
   const [isDemoMode, setIsDemoMode] = useState(false);
   const [savedDemos, setSavedDemos] = useState<Record<string, AllData>>({});
 
+  // --- Project Management State ---
+  const [currentProject, setCurrentProject] = useState<Project | null>(null);
+  const [isProjectManagerOpen, setProjectManagerOpen] = useState(false);
+
   useEffect(() => {
     try {
       const storedDemos = localStorage.getItem('seo-app-demos');
@@ -82,6 +90,22 @@ const App: React.FC = () => {
       }
     } catch (e) { console.error("Could not load demos from localStorage", e); }
   }, []);
+
+  // Check for first-time user and prompt for API keys
+  useEffect(() => {
+    const hasAnyApiKey = Object.values(apiKeys).some(key => key && key.trim() !== '');
+    const hasSeenWelcome = localStorage.getItem('seo-app-welcome-seen');
+    
+    if (!hasAnyApiKey && !hasSeenWelcome) {
+      // Show welcome message after a short delay
+      const timer = setTimeout(() => {
+        setApiManagerOpen(true);
+        localStorage.setItem('seo-app-welcome-seen', 'true');
+      }, 1500);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [apiKeys]);
 
   useEffect(() => {
     if (apiKeys.gemini) {
@@ -143,6 +167,59 @@ const App: React.FC = () => {
         loadDemoData(demoData);
     }
   };
+
+  // --- Project Management Handlers ---
+  const handleProjectSelect = (project: Project | null) => {
+    setCurrentProject(project);
+    if (project) {
+      loadDemoData(project.data);
+    } else {
+      resetAllState();
+    }
+  };
+
+  const handleProjectSave = (projectData: AllData, projectName: string) => {
+    if (currentProject) {
+      // Update existing project
+      const updatedProject: Project = {
+        ...currentProject,
+        lastModified: new Date().toISOString(),
+        data: projectData
+      };
+      setCurrentProject(updatedProject);
+      
+      // Save to localStorage
+      try {
+        const projects = JSON.parse(localStorage.getItem('seo-app-projects') || '[]');
+        const updatedProjects = projects.map((p: Project) => 
+          p.id === currentProject.id ? updatedProject : p
+        );
+        localStorage.setItem('seo-app-projects', JSON.stringify(updatedProjects));
+      } catch (error) {
+        console.error('Failed to save project:', error);
+      }
+    }
+  };
+
+  // Auto-save current project data when it changes
+  useEffect(() => {
+    if (currentProject && (brandData || keywordStrategy || contentPlan)) {
+      const currentData: AllData = {
+        brandData,
+        seoAudit,
+        analyticsData,
+        keywordStrategy,
+        contentPlan,
+        socialPosts,
+        technicalSeoPlan,
+        conversionPlan,
+        publishingPlan,
+        performanceAnalysis,
+        salesInsights
+      };
+      handleProjectSave(currentData, currentProject.name);
+    }
+  }, [brandData, keywordStrategy, contentPlan, socialPosts, technicalSeoPlan, conversionPlan, publishingPlan, performanceAnalysis]);
 
   const runGeneration = async <T,>(
     generationFunc: (service: AIService) => Promise<T>,
@@ -385,6 +462,13 @@ const App: React.FC = () => {
         onGenerate={handleGenerateNewDemo}
         isLoading={loading.demo}
     />
+    <ProjectManager
+        currentProject={currentProject}
+        onProjectSelect={handleProjectSelect}
+        onProjectSave={handleProjectSave}
+        isOpen={isProjectManagerOpen}
+        onClose={() => setProjectManagerOpen(false)}
+    />
     <CalendarEventModal
         event={selectedEvent}
         onClose={() => setSelectedEvent(null)}
@@ -397,7 +481,9 @@ const App: React.FC = () => {
               onManageApiKeys={() => setApiManagerOpen(true)}
               onGenerateNewDemo={() => setDemoModalOpen(true)}
               onLoadDemo={handleLoadDemo}
+              onManageProjects={() => setProjectManagerOpen(true)}
               savedDemos={Object.keys(savedDemos)}
+              currentProject={currentProject}
             />
             <main className="p-4 md:p-8 lg:p-12 space-y-8">
               <Step stepNumber="1" title="Business Information & SEO Audit" isAlwaysOpen>
@@ -472,13 +558,19 @@ const App: React.FC = () => {
               </Step>
 
               <Step stepNumber="5" title="Technical SEO for Indian Market" isUnlocked={isStepCompleted('publishing')}>
-                 <OutputSection
-                    title="Technical SEO Strategy"
-                    isLoading={loading.technical}
-                    content={formatOutput('Technical SEO Optimization', technicalSeoPlan)}
-                    placeholder="Your technical SEO recommendations will appear here..."
-                    isCompleted={isStepCompleted('technical')}
-                />
+                {loading.technical ? (
+                  <div className="text-center p-8">
+                    <div className="w-12 h-12 mx-auto mb-4 border-4 border-gray-200 border-t-brand-primary-start rounded-full animate-spin"></div>
+                    <p className="text-gray-600 font-semibold">Generating technical SEO recommendations...</p>
+                  </div>
+                ) : technicalSeoPlan ? (
+                  <ActionableTechnicalSeo data={technicalSeoPlan} />
+                ) : (
+                  <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 border-2 border-dashed border-gray-300">
+                    <h3 className="text-lg font-bold text-gray-700">Technical SEO Strategy</h3>
+                    <p className="text-gray-500 italic p-4 mt-4">Your technical SEO recommendations will appear here...</p>
+                  </div>
+                )}
                  {isStepCompleted('technical') && !isDemoMode && (
                   <div className="mt-6 text-center">
                     <button className={`${baseButtonClasses} ${secondaryButtonClasses}`} onClick={handleGenerateConversion} disabled={loading.conversion}>
@@ -489,13 +581,19 @@ const App: React.FC = () => {
               </Step>
 
               <Step stepNumber="6" title="Conversion Optimization for Indian Users" isUnlocked={isStepCompleted('technical')}>
-                 <OutputSection
-                    title="Conversion Strategy"
-                    isLoading={loading.conversion}
-                    content={formatOutput('Conversion Optimization', conversionPlan)}
-                    placeholder="Your conversion optimization plan will appear here..."
-                    isCompleted={isStepCompleted('conversion')}
-                />
+                {loading.conversion ? (
+                  <div className="text-center p-8">
+                    <div className="w-12 h-12 mx-auto mb-4 border-4 border-gray-200 border-t-brand-primary-start rounded-full animate-spin"></div>
+                    <p className="text-gray-600 font-semibold">Generating conversion optimization plan...</p>
+                  </div>
+                ) : conversionPlan ? (
+                  <ActionableConversionPlan data={conversionPlan} />
+                ) : (
+                  <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 border-2 border-dashed border-gray-300">
+                    <h3 className="text-lg font-bold text-gray-700">Conversion Strategy</h3>
+                    <p className="text-gray-500 italic p-4 mt-4">Your conversion optimization plan will appear here...</p>
+                  </div>
+                )}
               </Step>
               
               <Step stepNumber="7" title="Performance Review & AI Analysis" isUnlocked={isStepCompleted('conversion')}>
