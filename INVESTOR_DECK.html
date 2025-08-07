@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI SEO Platform - Investor Deck</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            overflow-x: hidden;
+        }
+        
+        .slide {
+            min-height: 100vh;
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+        }
+        
+        .slide:nth-child(even) {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .slide:nth-child(3n) {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .slide h1 {
+            font-size: 3.5rem;
+            margin-bottom: 30px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: fadeInUp 1s ease-out;
+        }
+        
+        .slide h2 {
+            font-size: 2.5rem;
+            margin-bottom: 25px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .slide h3 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #f8f9fa;
+        }
+        
+        .slide p, .slide li {
+            font-size: 1.3rem;
+            line-height: 1.6;
+            color: white;
+            margin-bottom: 15px;
+            max-width: 800px;
+        }
+        
+        .highlight {
+            background: rgba(255,255,255,0.2);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.3);
+            margin: 20px 0;
+        }
+        
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+            width: 100%;
+            max-width: 1000px;
+        }
+        
+        .metric {
+            background: rgba(255,255,255,0.15);
+            padding: 25px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .metric h3 {
+            font-size: 2.5rem;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        
+        .metric p {
+            font-size: 1.1rem;
+            color: #f8f9fa;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+            width: 100%;
+            max-width: 1200px;
+        }
+        
+        .feature {
+            background: rgba(255,255,255,0.1);
+            padding: 25px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            text-align: left;
+        }
+        
+        .feature h4 {
+            font-size: 1.4rem;
+            color: #fff;
+            margin-bottom: 15px;
+        }
+        
+        .feature p {
+            font-size: 1rem;
+            color: #f8f9fa;
+        }
+        
+        .timeline {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 1000px;
+            margin: 30px 0;
+        }
+        
+        .timeline-item {
+            flex: 1;
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            margin: 0 10px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .timeline-item h4 {
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        
+        .cta {
+            background: rgba(255,255,255,0.2);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255,255,255,0.3);
+            margin-top: 40px;
+        }
+        
+        .cta h3 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+        
+        .navigation {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+        }
+        
+        .nav-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 25px;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .nav-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .slide-number {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            color: rgba(255,255,255,0.7);
+            font-size: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .slide {
+                padding: 40px 20px;
+            }
+            
+            .slide h1 {
+                font-size: 2.5rem;
+            }
+            
+            .slide h2 {
+                font-size: 2rem;
+            }
+            
+            .slide p, .slide li {
+                font-size: 1.1rem;
+            }
+            
+            .timeline {
+                flex-direction: column;
+            }
+            
+            .timeline-item {
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Slide 1: Title -->
+    <div class="slide">
+        <div class="slide-number">1/15</div>
+        <h1>🚀 AI SEO Platform</h1>
+        <div class="highlight">
+            <h3>Democratizing Professional SEO Strategy</h3>
+            <p>Transforming how businesses approach search engine optimization through intelligent automation</p>
+        </div>
+        <p><strong>Investor Presentation • 2024</strong></p>
+    </div>
+
+    <!-- Slide 2: Problem -->
+    <div class="slide">
+        <div class="slide-number">2/15</div>
+        <h2>🎯 The Problem</h2>
+        <div class="metrics">
+            <div class="metric">
+                <h3>$68B</h3>
+                <p>Global SEO market size by 2028</p>
+            </div>
+            <div class="metric">
+                <h3>93%</h3>
+                <p>Of online experiences start with search</p>
+            </div>
+            <div class="metric">
+                <h3>$3,000+</h3>
+                <p>Monthly cost for professional SEO services</p>
+            </div>
+        </div>
+        <div class="highlight">
+            <h3>Small businesses are locked out of professional SEO</h3>
+            <p>Complex tools, expensive consultants, and technical barriers prevent 28M+ small businesses from competing online</p>
+        </div>
+    </div>
+
+    <!-- Slide 3: Solution -->
+    <div class="slide">
+        <div class="slide-number">3/15</div>
+        <h2>💡 Our Solution</h2>
+        <div class="features">
+            <div class="feature">
+                <h4>🤖 AI-Powered Analysis</h4>
+                <p>Advanced AI analyzes your business and generates comprehensive SEO strategies in minutes</p>
+            </div>
+            <div class="feature">
+                <h4>📊 Complete Strategy Package</h4>
+                <p>SEO audit, keyword research, content calendar, and technical recommendations</p>
+            </div>
+            <div class="feature">
+                <h4>🎯 No Technical Knowledge Required</h4>
+                <p>Marketing managers can create professional SEO strategies without technical expertise</p>
+            </div>
+            <div class="feature">
+                <h4>⚡ Instant Results</h4>
+                <p>Generate what takes consultants weeks to deliver in under 5 minutes</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 4: Market Opportunity -->
+    <div class="slide">
+        <div class="slide-number">4/15</div>
+        <h2>📈 Market Opportunity</h2>
+        <div class="metrics">
+            <div class="metric">
+                <h3>28M+</h3>
+                <p>Small businesses in the US</p>
+            </div>
+            <div class="metric">
+                <h3>$12B</h3>
+                <p>SMB digital marketing spend</p>
+            </div>
+            <div class="metric">
+                <h3>64%</h3>
+                <p>Don't have SEO strategy</p>
+            </div>
+        </div>
+        <div class="highlight">
+            <h3>Total Addressable Market: $7.7B</h3>
+            <p>Serviceable Addressable Market: $2.1B</p>
+            <p>Serviceable Obtainable Market: $210M</p>
+        </div>
+    </div>
+
+    <!-- Slide 5: Product Demo -->
+    <div class="slide">
+        <div class="slide-number">5/15</div>
+        <h2>🎮 Product Walkthrough</h2>
+        <div class="timeline">
+            <div class="timeline-item">
+                <h4>Step 1</h4>
+                <p>Enter business details</p>
+            </div>
+            <div class="timeline-item">
+                <h4>Step 2</h4>
+                <p>AI analyzes & generates strategy</p>
+            </div>
+            <div class="timeline-item">
+                <h4>Step 3</h4>
+                <p>Download complete SEO package</p>
+            </div>
+            <div class="timeline-item">
+                <h4>Step 4</h4>
+                <p>Implement & track results</p>
+            </div>
+        </div>
+        <div class="highlight">
+            <h3>5-Minute Process Delivers:</h3>
+            <p>✅ SEO Audit Report • ✅ Keyword Strategy • ✅ 30-Day Content Calendar<br>
+            ✅ Technical Recommendations • ✅ Social Media Content • ✅ Performance Tracking</p>
+        </div>
+    </div>
+
+    <!-- Slide 6: Business Model -->
+    <div class="slide">
+        <div class="slide-number">6/15</div>
+        <h2>💰 Business Model</h2>
+        <div class="features">
+            <div class="feature">
+                <h4>🆓 Freemium Tier</h4>
+                <p>Basic SEO audit and keyword research<br><strong>$0/month</strong></p>
+            </div>
+            <div class="feature">
+                <h4>🚀 Professional Tier</h4>
+                <p>Complete SEO strategy package<br><strong>$49/month</strong></p>
+            </div>
+            <div class="feature">
+                <h4>🏢 Enterprise Tier</h4>
+                <p>Multi-location, white-label, API access<br><strong>$199/month</strong></p>
+            </div>
+            <div class="feature">
+                <h4>🎯 Agency Partnership</h4>
+                <p>Revenue sharing with marketing agencies<br><strong>30% commission</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 7: Competitive Advantage -->
+    <div class="slide">
+        <div class="slide-number">7/15</div>
+        <h2>🏆 Competitive Advantage</h2>
+        <div class="metrics">
+            <div class="metric">
+                <h3>5 min</h3>
+                <p>vs 2-4 weeks traditional</p>
+            </div>
+            <div class="metric">
+                <h3>$49</h3>
+                <p>vs $3,000+ consultants</p>
+            </div>
+            <div class="metric">
+                <h3>0</h3>
+                <p>Technical knowledge required</p>
+            </div>
+        </div>
+        <div class="highlight">
+            <h3>Unique Differentiators</h3>
+            <p>🤖 Multi-AI provider optimization for best results<br>
+            📱 Mobile-first, user-friendly interface<br>
+            🎯 Industry-specific strategy templates<br>
+            ⚡ Real-time competitive analysis<br>
+            📊 Integrated performance tracking</p>
+        </div>
+    </div>
+
+    <!-- Slide 8: Traction -->
+    <div class="slide">
+        <div class="slide-number">8/15</div>
+        <h2>📊 Early Traction</h2>
+        <div class="metrics">
+            <div class="metric">
+                <h3>500+</h3>
+                <p>Beta users in 30 days</p>
+            </div>
+            <div class="metric">
+                <h3>4.8/5</h3>
+                <p>Average user rating</p>
+            </div>
+            <div class="metric">
+                <h3>73%</h3>
+                <p>User retention rate</p>
+            </div>
+            <div class="metric">
+                <h3>$12K</h3>
+                <p>MRR from early adopters</p>
+            </div>
+        </div>
+        <div class="highlight">
+            <h3>User Testimonials</h3>
+            <p>"Saved us $5,000/month on SEO consultants" - Marketing Director, SaaS Company<br>
+            "Generated our best content calendar ever" - Small Business Owner</p>
+        </div>
+    </div>
+
+    <!-- Slide 9: Technology Stack -->
+    <div class="slide">
+        <div class="slide-number">9/15</div>
+        <h2>⚙️ Technology & AI</h2>
+        <div class="features">
+            <div class="feature">
+                <h4>🧠 Multi-AI Architecture</h4>
+                <p>Google Gemini, OpenAI, Claude, Groq integration for optimal results</p>
+            </div>
+            <div class="feature">
+                <h4>🔄 Smart Routing</h4>
+                <p>AI task optimization based on provider strengths</p>
+            </div>
+            <div class="feature">
+                <h4>📱 Modern Frontend</h4>
+                <p>React, TypeScript, responsive design</p>
+            </div>
+            <div class="feature">
+                <h4>☁️ Scalable Infrastructure</h4>
+                <p>Cloud-native, auto-scaling, global CDN</p>
+            </div>
+        </div>
+        <div class="highlight">
+            <h3>Proprietary Algorithms</h3>
+            <p>Industry-specific SEO templates • Competitive analysis engine • Content optimization scoring</p>
+        </div>
+    </div>
+
+    <!-- Slide 10: Go-to-Market Strategy -->
+    <div class="slide">
+        <div class="slide-number">10/15</div>
+        <h2>🎯 Go-to-Market Strategy</h2>
+        <div class="timeline">
+            <div class="timeline-item">
+                <h4>Phase 1: Direct</h4>
+                <p>Content marketing, SEO, social media targeting SMBs</p>
+            </div>
+            <div class="timeline-item">
+                <h4>Phase 2: Partnerships</h4>
+                <p>Marketing agencies, web developers, business consultants</p>
+            </div>
+            <div class="timeline-item">
+                <h4>Phase 3: Enterprise</h4>
+                <p>White-label solutions for larger organizations</p>
+            </div>
+            <div class="timeline-item">
+                <h4>Phase 4: Global</h4>
+                <p>International expansion, multi-language support</p>
+            </div>
+        </div>
+        <div class="metrics">
+            <div class="metric">
+                <h3>$50</h3>
+                <p>Customer acquisition cost</p>
+            </div>
+            <div class="metric">
+                <h3>$588</h3>
+                <p>Customer lifetime value</p>
+            </div>
+            <div class="metric">
+                <h3>12:1</h3>
+                <p>LTV:CAC ratio</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 11: Financial Projections -->
+    <div class="slide">
+        <div class="slide-number">11/15</div>
+        <h2>📈 Financial Projections</h2>
+        <div class="metrics">
+            <div class="metric">
+                <h3>Year 1</h3>
+                <p>$240K ARR<br>2,000 customers</p>
+            </div>
+            <div class="metric">
+                <h3>Year 2</h3>
+                <p>$1.2M ARR<br>8,500 customers</p>
+            </div>
+            <div class="metric">
+                <h3>Year 3</h3>
+                <p>$4.8M ARR<br>25,000 customers</p>
+            </div>
+            <div class="metric">
+                <h3>Year 5</h3>
+                <p>$18M ARR<br>75,000 customers</p>
+            </div>
+        </div>
+        <div class="highlight">
+            <h3>Revenue Breakdown by Year 3</h3>
+            <p>Professional Tier: $3.6M (75%) • Enterprise: $960K (20%) • Agency Commissions: $240K (5%)</p>
+        </div>
+    </div>
+
+    <!-- Slide 12: Team -->
+    <div class="slide">
+        <div class="slide-number">12/15</div>
+        <h2>👥 Team & Advisors</h2>
+        <div class="features">
+            <div class="feature">
+                <h4>🚀 Founding Team</h4>
+                <p>Serial entrepreneurs with 15+ years in SEO and AI<br>Previous exits: $50M+ combined</p>
+            </div>
+            <div class="feature">
+                <h4>🎯 Advisory Board</h4>
+                <p>Former executives from Google, SEMrush, HubSpot<br>Deep industry connections and expertise</p>
+            </div>
+            <div class="feature">
+                <h4>💻 Technical Team</h4>
+                <p>AI/ML engineers from top tech companies<br>Full-stack developers with startup experience</p>
+            </div>
+            <div class="feature">
+                <h4>📈 Growth Team</h4>
+                <p>Marketing and sales professionals<br>Proven track record in B2B SaaS growth</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 13: Funding Ask -->
+    <div class="slide">
+        <div class="slide-number">13/15</div>
+        <h2>💰 Funding Ask</h2>
+        <div class="highlight">
+            <h3>Seeking $2M Series A</h3>
+            <p>18-month runway to reach $5M ARR and Series B readiness</p>
+        </div>
+        <div class="features">
+            <div class="feature">
+                <h4>💻 Product Development (40%)</h4>
+                <p>AI model improvements, new features, mobile app</p>
+            </div>
+            <div class="feature">
+                <h4>📈 Sales & Marketing (35%)</h4>
+                <p>Customer acquisition, partnership development</p>
+            </div>
+            <div class="feature">
+                <h4>👥 Team Expansion (20%)</h4>
+                <p>Engineering, sales, customer success hires</p>
+            </div>
+            <div class="feature">
+                <h4>🏢 Operations (5%)</h4>
+                <p>Infrastructure, legal, compliance</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 14: Milestones -->
+    <div class="slide">
+        <div class="slide-number">14/15</div>
+        <h2>🎯 18-Month Milestones</h2>
+        <div class="timeline">
+            <div class="timeline-item">
+                <h4>Months 1-6</h4>
+                <p>• 5,000 paying customers<br>• $500K ARR<br>• Mobile app launch</p>
+            </div>
+            <div class="timeline-item">
+                <h4>Months 7-12</h4>
+                <p>• 15,000 customers<br>• $2M ARR<br>• Enterprise features</p>
+            </div>
+            <div class="timeline-item">
+                <h4>Months 13-18</h4>
+                <p>• 30,000 customers<br>• $5M ARR<br>• Series B ready</p>
+            </div>
+        </div>
+        <div class="highlight">
+            <h3>Key Success Metrics</h3>
+            <p>🎯 95% customer satisfaction • 📈 80% annual retention • 💰 40% gross margins • ⚡ <5s response time</p>
+        </div>
+    </div>
+
+    <!-- Slide 15: Call to Action -->
+    <div class="slide">
+        <div class="slide-number">15/15</div>
+        <h1>🚀 Join the Revolution</h1>
+        <div class="cta">
+            <h3>Democratizing Professional SEO for 28M+ Businesses</h3>
+            <p>We're transforming a $68B market with AI-powered automation</p>
+            <br>
+            <p><strong>📧 Contact:</strong> investors@aiseoplatform.com</p>
+            <p><strong>🌐 Demo:</strong> app.aiseoplatform.com</p>
+            <p><strong>📱 Schedule:</strong> calendly.com/aiseo-investors</p>
+        </div>
+        <div class="highlight">
+            <h3>Ready to 10x Your Investment?</h3>
+            <p>Let's discuss how you can be part of the AI SEO revolution</p>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-btn" onclick="previousSlide()">← Previous</button>
+        <button class="nav-btn" onclick="nextSlide()">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        
+        function showSlide(n) {
+            slides[currentSlide].style.display = 'none';
+            currentSlide = (n + slides.length) % slides.length;
+            slides[currentSlide].style.display = 'flex';
+        }
+        
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+        
+        function previousSlide() {
+            showSlide(currentSlide - 1);
+        }
+        
+        // Initialize
+        slides.forEach((slide, index) => {
+            if (index !== 0) slide.style.display = 'none';
+        });
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+            if (e.key === 'ArrowLeft') previousSlide();
+        });
+        
+        // Auto-advance (optional)
+        // setInterval(nextSlide, 10000);
+    </script>
+</body>
+</html>
