@@ -16,6 +16,8 @@ export interface BrandData extends InitialBrandInput {
   description: string;
   targetCustomer: string;
   keyServices: string;
+  targetAudience?: string;
+  uniqueValueProposition?: string;
 }
 
 export interface AnalyticsData {
@@ -79,8 +81,6 @@ export interface ContentPlan {
   blogPosts: string[];
   totalPages: number;
 }
-
-export type ApiProviderId = 'gemini' | 'claude' | 'openai' | 'groq' | 'openrouter';
 
 export type SocialPlatform = 'linkedin' | 'twitter' | 'facebook' | 'instagram';
 
@@ -164,6 +164,8 @@ export interface ApiKeys {
     groq?: string;
     openrouter?: string;
 }
+
+export type ApiProviderId = keyof ApiKeys;
 
 export interface Project {
     id: string;
