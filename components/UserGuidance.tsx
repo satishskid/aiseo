@@ -1,134 +1,257 @@
 import React, { useState, useEffect } from 'react';
 
-interface DownloadReminderProps {
-  step: string;
-  onDownload: () => void;
+interface UserGuidanceProps {
+  currentStep: string;
+  completedSteps: string[];
+  onClose: () => void;
   isVisible: boolean;
-  onDismiss: () => void;
 }
 
-export const DownloadReminder: React.FC<DownloadReminderProps> = ({ 
-  step, 
-  onDownload, 
-  isVisible, 
-  onDismiss 
+interface GuidanceStep {
+  id: string;
+  title: string;
+  description: string;
+  tips: string[];
+  nextAction?: string;
+}
+
+const GUIDANCE_STEPS: GuidanceStep[] = [
+  {
+    id: 'start',
+    title: '🚀 Welcome to AI SEO Platform!',
+    description: 'Let\'s create a comprehensive SEO strategy for your business in just a few steps.',
+    tips: [
+      'Have your business information ready',
+      'Think about your target audience',
+      'Consider your main products/services',
+      'Set aside 15-20 minutes for the complete process'
+    ],
+    nextAction: 'Fill out your business information below'
+  },
+  {
+    id: 'business',
+    title: '🏢 Business Information',
+    description: 'Provide accurate business details for personalized SEO recommendations.',
+    tips: [
+      'Use your official business name',
+      'Be specific about your industry',
+      'Include your target location',
+      'Mention your main products/services clearly'
+    ],
+    nextAction: 'Click "Generate SEO Audit" when ready'
+  },
+  {
+    id: 'audit',
+    title: '🔍 SEO Audit Complete',
+    description: 'Great! We\'ve analyzed your business and identified key opportunities.',
+    tips: [
+      'Review the audit findings carefully',
+      'Note the priority recommendations',
+      'Check the competitive analysis',
+      'Look for quick wins you can implement'
+    ],
+    nextAction: 'Generate keyword research for targeted traffic'
+  },
+  {
+    id: 'keywords',
+    title: '🎯 Keyword Strategy',
+    description: 'Your keyword research reveals the best opportunities for ranking.',
+    tips: [
+      'Focus on long-tail keywords first',
+      'Consider local search terms',
+      'Balance search volume with competition',
+      'Look for buyer-intent keywords'
+    ],
+    nextAction: 'Generate content strategy based on these keywords'
+  },
+  {
+    id: 'content',
+    title: '📝 Content & Social Media',
+    description: 'Content is king! Your strategy includes blog posts and social media.',
+    tips: [
+      'Review each content piece suggestion',
+      'Adapt the tone to your brand voice',
+      'Plan your content calendar',
+      'Consider seasonal trends'
+    ],
+    nextAction: 'Create your publishing calendar'
+  },
+  {
+    id: 'publishing',
+    title: '📅 Publishing Calendar',
+    description: 'Your content calendar ensures consistent, strategic publishing.',
+    tips: [
+      'Click on calendar events for details',
+      'Download the calendar to your Google Calendar',
+      'Set reminders for content creation',
+      'Track your publishing consistency'
+    ],
+    nextAction: 'Optimize technical SEO elements'
+  },
+  {
+    id: 'technical',
+    title: '⚙️ Technical SEO',
+    description: 'Technical optimization ensures search engines can find and index your content.',
+    tips: [
+      'Implement schema markup for rich snippets',
+      'Optimize page loading speed',
+      'Ensure mobile responsiveness',
+      'Fix any crawling issues'
+    ],
+    nextAction: 'Optimize for conversions'
+  },
+  {
+    id: 'conversion',
+    title: '💰 Conversion Optimization',
+    description: 'Turn your traffic into customers with conversion-focused strategies.',
+    tips: [
+      'Focus on user experience improvements',
+      'Optimize your call-to-action buttons',
+      'Reduce friction in your sales funnel',
+      'Test different approaches'
+    ],
+    nextAction: 'Track and analyze performance'
+  },
+  {
+    id: 'performance',
+    title: '📊 Performance Tracking',
+    description: 'Monitor your SEO success and get AI-powered recommendations.',
+    tips: [
+      'Set up Google Analytics and Search Console',
+      'Track your target keywords regularly',
+      'Monitor your conversion rates',
+      'Review and adjust your strategy monthly'
+    ],
+    nextAction: 'Download your complete SEO package'
+  }
+];
+
+export const UserGuidance: React.FC<UserGuidanceProps> = ({ 
+  currentStep, 
+  completedSteps, 
+  onClose, 
+  isVisible 
 }) => {
-  if (!isVisible) return null;
-
-  return (
-    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4 shadow-sm">
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-2">
-          <span className="text-yellow-600 text-xl">⚠️</span>
-          <div>
-            <span className="font-semibold text-yellow-800">
-              Don't forget to download your {step} data!
-            </span>
-            <p className="text-yellow-700 text-sm mt-1">
-              This app uses browser storage only. Download to avoid data loss.
-            </p>
-          </div>
-        </div>
-        <button 
-          onClick={onDismiss}
-          className="text-yellow-600 hover:text-yellow-800 text-lg font-bold"
-        >
-          ×
-        </button>
-      </div>
-      <div className="mt-3 flex gap-2">
-        <button 
-          onClick={onDownload} 
-          className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
-        >
-          📥 Download Now
-        </button>
-        <button 
-          onClick={onDismiss}
-          className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded text-sm font-medium transition-colors"
-        >
-          Later
-        </button>
-      </div>
-    </div>
-  );
-};
-
-interface StorageMonitorProps {
-  className?: string;
-}
-
-export const StorageMonitor: React.FC<StorageMonitorProps> = ({ className = '' }) => {
-  const [storageUsed, setStorageUsed] = useState(0);
-  const [showWarning, setShowWarning] = useState(false);
+  const [currentGuidance, setCurrentGuidance] = useState<GuidanceStep | null>(null);
+  const [showTips, setShowTips] = useState(false);
 
   useEffect(() => {
-    const checkStorage = () => {
-      try {
-        const used = JSON.stringify(localStorage).length;
-        const limit = 5 * 1024 * 1024; // 5MB typical limit
-        const percentage = (used / limit) * 100;
-        setStorageUsed(percentage);
-        setShowWarning(percentage > 80);
-      } catch (error) {
-        console.warn('Could not check storage usage:', error);
-      }
-    };
-    
-    checkStorage();
-    const interval = setInterval(checkStorage, 30000); // Check every 30 seconds
-    return () => clearInterval(interval);
-  }, []);
+    const guidance = GUIDANCE_STEPS.find(step => step.id === currentStep);
+    setCurrentGuidance(guidance || GUIDANCE_STEPS[0]);
+  }, [currentStep]);
 
-  if (storageUsed < 50) return null; // Only show when storage is getting full
+  if (!isVisible || !currentGuidance) return null;
 
-  const getStorageColor = () => {
-    if (storageUsed > 90) return 'text-red-600 bg-red-50 border-red-200';
-    if (storageUsed > 80) return 'text-orange-600 bg-orange-50 border-orange-200';
-    return 'text-blue-600 bg-blue-50 border-blue-200';
-  };
-
-  const getStorageIcon = () => {
-    if (storageUsed > 90) return '🚨';
-    if (storageUsed > 80) return '⚠️';
-    return '💾';
-  };
+  const progress = (completedSteps.length / GUIDANCE_STEPS.length) * 100;
 
   return (
-    <div className={`${getStorageColor()} border rounded-lg p-3 ${className}`}>
-      <div className="flex items-center gap-2">
-        <span className="text-lg">{getStorageIcon()}</span>
-        <div className="flex-1">
-          <div className="text-sm font-medium">
-            Browser Storage: {storageUsed.toFixed(1)}% used
-          </div>
-          {showWarning && (
-            <div className="text-xs mt-1">
-              Consider downloading your data to free up space
+    <div className="fixed top-4 right-4 w-80 bg-white rounded-2xl shadow-2xl border border-gray-200 z-50 animate-slideInRight">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 rounded-t-2xl">
+        <div className="flex justify-between items-start">
+          <div>
+            <h3 className="font-bold text-lg">{currentGuidance.title}</h3>
+            <div className="text-blue-100 text-sm mt-1">
+              Step {GUIDANCE_STEPS.findIndex(s => s.id === currentStep) + 1} of {GUIDANCE_STEPS.length}
             </div>
-          )}
+          </div>
+          <button
+            onClick={onClose}
+            className="text-white hover:text-gray-200 text-xl font-bold"
+          >
+            ×
+          </button>
+        </div>
+        
+        {/* Progress Bar */}
+        <div className="mt-3">
+          <div className="bg-blue-400 rounded-full h-2">
+            <div 
+              className="bg-white rounded-full h-2 transition-all duration-500"
+              style={{ width: `${progress}%` }}
+            ></div>
+          </div>
         </div>
       </div>
-      <div className="mt-2 bg-gray-200 rounded-full h-2">
-        <div 
-          className={`h-2 rounded-full transition-all duration-300 ${
-            storageUsed > 90 ? 'bg-red-500' : 
-            storageUsed > 80 ? 'bg-orange-500' : 'bg-blue-500'
-          }`}
-          style={{ width: `${Math.min(storageUsed, 100)}%` }}
-        />
+
+      {/* Content */}
+      <div className="p-4">
+        <p className="text-gray-700 mb-4">
+          {currentGuidance.description}
+        </p>
+
+        {/* Tips Toggle */}
+        <button
+          onClick={() => setShowTips(!showTips)}
+          className="flex items-center text-blue-600 hover:text-blue-800 font-semibold mb-3"
+        >
+          {showTips ? '▼' : '▶'} Pro Tips
+        </button>
+
+        {/* Tips */}
+        {showTips && (
+          <div className="bg-blue-50 rounded-lg p-3 mb-4">
+            <ul className="space-y-2">
+              {currentGuidance.tips.map((tip, index) => (
+                <li key={index} className="flex items-start text-sm text-gray-700">
+                  <span className="text-blue-500 mr-2">💡</span>
+                  {tip}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Next Action */}
+        {currentGuidance.nextAction && (
+          <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+            <div className="flex items-center">
+              <span className="text-green-500 mr-2">👉</span>
+              <span className="text-green-800 font-medium text-sm">
+                Next: {currentGuidance.nextAction}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Completed Steps Indicator */}
+        {completedSteps.length > 0 && (
+          <div className="mt-4 pt-3 border-t border-gray-200">
+            <div className="text-sm text-gray-600">
+              ✅ Completed: {completedSteps.length} steps
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="bg-gray-50 px-4 py-3 rounded-b-2xl">
+        <div className="flex justify-between items-center">
+          <div className="text-xs text-gray-500">
+            Need help? Check the user manual
+          </div>
+          <button
+            onClick={onClose}
+            className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+          >
+            Hide Guide
+          </button>
+        </div>
       </div>
     </div>
   );
 };
 
-interface ExportSuccessNotificationProps {
-  type: string;
+// Notification component for downloads/copies
+interface NotificationProps {
+  message: string;
+  type: 'success' | 'info' | 'warning';
   isVisible: boolean;
   onClose: () => void;
 }
 
-export const ExportSuccessNotification: React.FC<ExportSuccessNotificationProps> = ({ 
+export const Notification: React.FC<NotificationProps> = ({ 
+  message, 
   type, 
   isVisible, 
   onClose 
@@ -142,115 +265,30 @@ export const ExportSuccessNotification: React.FC<ExportSuccessNotificationProps>
 
   if (!isVisible) return null;
 
+  const bgColor = {
+    success: 'bg-green-500',
+    info: 'bg-blue-500',
+    warning: 'bg-yellow-500'
+  }[type];
+
+  const icon = {
+    success: '✅',
+    info: 'ℹ️',
+    warning: '⚠️'
+  }[type];
+
   return (
-    <div className="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 max-w-sm">
-      <div className="flex items-center gap-2">
-        <span className="text-lg">✅</span>
-        <div>
-          <div className="font-semibold">{type} exported successfully!</div>
-          <div className="text-green-100 text-sm">Data saved to your downloads</div>
-        </div>
-        <button 
+    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 animate-slideInDown">
+      <div className={`${bgColor} text-white px-6 py-3 rounded-lg shadow-lg flex items-center`}>
+        <span className="mr-2">{icon}</span>
+        <span className="font-medium">{message}</span>
+        <button
           onClick={onClose}
-          className="ml-2 text-green-100 hover:text-white text-lg font-bold"
+          className="ml-4 text-white hover:text-gray-200 font-bold"
         >
           ×
         </button>
       </div>
     </div>
   );
-};
-
-interface DataPersistenceWarningProps {
-  isVisible: boolean;
-  onDismiss: () => void;
-}
-
-export const DataPersistenceWarning: React.FC<DataPersistenceWarningProps> = ({ 
-  isVisible, 
-  onDismiss 
-}) => {
-  if (!isVisible) return null;
-
-  return (
-    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-      <div className="flex items-start gap-3">
-        <span className="text-blue-600 text-xl">💡</span>
-        <div className="flex-1">
-          <h3 className="font-semibold text-blue-800 mb-2">
-            Important: Data Storage Information
-          </h3>
-          <div className="text-blue-700 text-sm space-y-2">
-            <p>• This app stores data in your browser only - no cloud backup</p>
-            <p>• Download your work regularly to prevent data loss</p>
-            <p>• Clearing browser data will remove all your projects</p>
-            <p>• Use the download buttons after each major step</p>
-          </div>
-          <div className="mt-3 flex gap-2">
-            <button 
-              onClick={onDismiss}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
-            >
-              Got it!
-            </button>
-          </div>
-        </div>
-        <button 
-          onClick={onDismiss}
-          className="text-blue-600 hover:text-blue-800 text-lg font-bold"
-        >
-          ×
-        </button>
-      </div>
-    </div>
-  );
-};
-
-// Hook for managing user guidance state
-export const useUserGuidance = () => {
-  const [showDataWarning, setShowDataWarning] = useState(false);
-  const [dismissedReminders, setDismissedReminders] = useState<Set<string>>(new Set());
-  const [exportNotification, setExportNotification] = useState<{type: string; visible: boolean}>({
-    type: '',
-    visible: false
-  });
-
-  useEffect(() => {
-    // Show data warning for first-time users
-    const hasSeenWarning = localStorage.getItem('seo-app-data-warning-seen');
-    if (!hasSeenWarning) {
-      setShowDataWarning(true);
-    }
-  }, []);
-
-  const dismissDataWarning = () => {
-    setShowDataWarning(false);
-    localStorage.setItem('seo-app-data-warning-seen', 'true');
-  };
-
-  const dismissReminder = (step: string) => {
-    setDismissedReminders(prev => new Set([...prev, step]));
-  };
-
-  const showExportSuccess = (type: string) => {
-    setExportNotification({ type, visible: true });
-  };
-
-  const hideExportNotification = () => {
-    setExportNotification(prev => ({ ...prev, visible: false }));
-  };
-
-  const shouldShowReminder = (step: string) => {
-    return !dismissedReminders.has(step);
-  };
-
-  return {
-    showDataWarning,
-    dismissDataWarning,
-    dismissReminder,
-    showExportSuccess,
-    exportNotification,
-    hideExportNotification,
-    shouldShowReminder
-  };
 };
