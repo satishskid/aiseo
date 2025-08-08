@@ -157,7 +157,7 @@ export const BetaAuth: React.FC<BetaAuthProps> = ({ children }) => {
             )}
             
             <p className="text-sm text-gray-500 mt-4">
-              Beta Period: {BETA_CONFIG.betaStartDate.toLocaleDateString()} - {BETA_CONFIG.betaEndDate.toLocaleDateString()}
+              Beta access is currently open.
             </p>
           </div>
         </div>

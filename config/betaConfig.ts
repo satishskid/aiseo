@@ -48,9 +48,9 @@ export const BETA_CONFIG = {
     }
   ] as BetaUser[],
   
-  // Beta testing period
-  betaStartDate: new Date('2024-01-01'),
-  betaEndDate: new Date('2024-03-31'),
+  // Beta testing period - No end date for now
+  // betaStartDate: new Date('2024-01-01'),
+  // betaEndDate: new Date('2024-03-31'),
   
   // Features available in beta
   betaFeatures: {
@@ -67,8 +67,7 @@ export const BETA_CONFIG = {
 
 // Helper function to check if beta period is active
 export const isBetaPeriodActive = (): boolean => {
-  const now = new Date();
-  return now >= BETA_CONFIG.betaStartDate && now <= BETA_CONFIG.betaEndDate;
+  return true;
 };
 
 // Helper function to get user by username
