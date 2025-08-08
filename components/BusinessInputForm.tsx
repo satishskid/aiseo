@@ -1,16 +1,16 @@
-
 import React, { useState, useMemo, useEffect } from 'react';
-import type { InitialBrandInput, BrandData, SeoAudit } from '../types';
-import { 
-    INDUSTRY_OPTIONS, 
-    SERVICE_MODEL_OPTIONS, 
-    LOCATION_SCOPE_OPTIONS, 
+import type { InitialBrandInput, BrandData, SeoAudit, StructuredDataConfig } from '../types';
+import {
+    INDUSTRY_OPTIONS,
+    SERVICE_MODEL_OPTIONS,
+    LOCATION_SCOPE_OPTIONS,
     CITY_OPTIONS,
     baseButtonClasses,
     primaryButtonClasses,
     analyticsButtonClasses
 } from '../constants';
 import { BaselineAuditReport } from './BaselineAuditReport';
+import { StructuredDataInput } from './StructuredDataInput';
 
 
 interface BusinessInputFormProps {
@@ -22,6 +22,7 @@ interface BusinessInputFormProps {
     seoAudit: SeoAudit | null;
     onToggleAnalytics: () => void;
     isDemoMode: boolean;
+    currentProject: any; // Add this prop
 }
 
 const inputClasses = "w-full py-[15px] px-5 border-2 border-gray-200 rounded-xl text-[15px] transition-all duration-300 bg-gray-50 focus:outline-none focus:border-brand-primary-start focus:bg-white focus:shadow-[0_0_0_3px_rgba(102,126,234,0.1)] focus:-translate-y-px disabled:bg-gray-200 disabled:cursor-not-allowed";
@@ -37,6 +38,7 @@ export const BusinessInputForm: React.FC<BusinessInputFormProps> = ({
     seoAudit,
     onToggleAnalytics,
     isDemoMode,
+    currentProject,
 }) => {
     const [formData, setFormData] = useState<BrandData>({
         name: '', website: '', businessType: '', serviceType: '',
@@ -46,21 +48,46 @@ export const BusinessInputForm: React.FC<BusinessInputFormProps> = ({
     });
 
     const [isFoundationGenerated, setIsFoundationGenerated] = useState(false);
+    const [showStructuredDataInput, setShowStructuredDataInput] = useState(false);
+    const [structuredData, setStructuredData] = useState<StructuredDataConfig | null>(null);
 
     useEffect(() => {
         if (foundationData) {
-            setFormData(foundationData);
+            setFormData(prev => ({
+                ...prev,
+                ...foundationData
+            }));
             setIsFoundationGenerated(true);
-        } else {
-            setFormData({
-                name: '', website: '', businessType: '', serviceType: '',
-                locationScope: 'pan-india', specificLocations: '', selectedCities: [],
-                linkedinHandle: '', twitterHandle: '', facebookHandle: '',
-                description: '', targetCustomer: '', keyServices: '',
-            });
-            setIsFoundationGenerated(false);
         }
     }, [foundationData]);
+
+    useEffect(() => {
+        // If there's a current project with brand data, populate the form
+        if (currentProject && currentProject.data && currentProject.data.brandData) {
+            setFormData(currentProject.data.brandData);
+            setIsFoundationGenerated(!!currentProject.data.brandData.description);
+        }
+    }, [currentProject]);
+
+    const handleStructuredDataImport = (data: StructuredDataConfig) => {
+        setStructuredData(data);
+        // Map structured data to business form data
+        setFormData(prev => ({
+            ...prev,
+            name: data.businessName,
+            website: data.website,
+            businessType: data.businessType,
+            description: data.description,
+            // Map address to location fields
+            specificLocations: `${data.address.street}, ${data.address.city}, ${data.address.state} ${data.address.postalCode}, ${data.address.country}`,
+            // Map social profiles
+            linkedinHandle: data.socialProfiles.linkedin || '',
+            twitterHandle: data.socialProfiles.twitter || '',
+            facebookHandle: data.socialProfiles.facebook || '',
+        }));
+        setShowStructuredDataInput(false);
+        setIsFoundationGenerated(false);
+    };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -70,8 +97,8 @@ export const BusinessInputForm: React.FC<BusinessInputFormProps> = ({
     const handleCityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { value, checked } = e.target;
         setFormData(prev => {
-            const newCities = checked 
-                ? [...prev.selectedCities, value] 
+            const newCities = checked
+                ? [...prev.selectedCities, value]
                 : prev.selectedCities.filter(city => city !== value);
             return { ...prev, selectedCities: newCities };
         });
@@ -85,7 +112,7 @@ export const BusinessInputForm: React.FC<BusinessInputFormProps> = ({
         }
         onGenerateInitialAnalysis(formData);
     };
-    
+
     const handleConfirmClick = (e: React.FormEvent) => {
         e.preventDefault();
          if (!formData.description || !formData.targetCustomer) {
@@ -94,7 +121,7 @@ export const BusinessInputForm: React.FC<BusinessInputFormProps> = ({
         }
         onConfirmAndGenerateStrategy(formData);
     };
-    
+
     const showSpecificLocations = useMemo(() => {
         return formData.locationScope === 'specific-cities' || formData.locationScope === 'specific-states';
     }, [formData.locationScope]);
@@ -108,6 +135,63 @@ export const BusinessInputForm: React.FC<BusinessInputFormProps> = ({
                     <p className="text-lg font-bold text-brand-primary-start bg-white/80 p-4 rounded-lg shadow-lg">Demo Mode is Active</p>
                 </div>
             )}
+            
+            {/* Structured data import UI elements - moved inside render function */}
+            {!isFoundationGenerated && (
+                <div className="bg-white rounded-2xl shadow-lg p-8 mb-8 border border-gray-200">
+                    <div className="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 className="text-2xl font-bold text-gray-800">Business Information</h2>
+                            <p className="text-gray-600 mt-1">Tell us about your business to generate your SEO foundation</p>
+                        </div>
+                        <button
+                            onClick={() => setShowStructuredDataInput(true)}
+                            className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:shadow-lg transition-all duration-200 flex items-center"
+                        >
+                            <span className="mr-2">📁</span>
+                            Import Business Data
+                        </button>
+                    </div>
+
+                    {showStructuredDataInput && (
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                            <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                                <div className="p-6 border-b border-gray-200">
+                                    <div className="flex items-center justify-between">
+                                        <h3 className="text-xl font-bold text-gray-800">Import Business Data</h3>
+                                        <button
+                                            onClick={() => setShowStructuredDataInput(false)}
+                                            className="text-gray-500 hover:text-gray-700 text-2xl font-bold"
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
+                                    <p className="text-gray-600 mt-1">Fill in your business details below to auto-populate the form</p>
+                                </div>
+                                <div className="p-6">
+                                    <StructuredDataInput
+                                        onSubmit={handleStructuredDataImport}
+                                        isLoading={isLoadingFoundation}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {structuredData && (
+                        <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
+                            <div className="flex items-center">
+                                <span className="text-green-500 text-xl mr-2">✅</span>
+                                <span className="font-semibold text-green-800">Business data imported successfully!</span>
+                            </div>
+                            <p className="text-green-700 text-sm mt-1">
+                                {structuredData.businessName} data has been imported. You can still edit the information below.
+                            </p>
+                        </div>
+                    )}
+                </div>
+            )}
+
             {/* --- Stage 1: Initial Inputs --- */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>

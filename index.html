@@ -6,6 +6,7 @@
     <title>Healthcare, EdTech & AI SEO Automation Platform</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
+      // Keeping custom config but will move to proper Tailwind config
       tailwind.config = {
         theme: {
           extend: {
@@ -42,20 +43,9 @@
         },
       }
     </script>
-  <script type="importmap">
-{
-  "imports": {
-    "react/": "https://esm.sh/react@^19.1.1/",
-    "react": "https://esm.sh/react@^19.1.1",
-    "react-dom/": "https://esm.sh/react-dom@^19.1.1/",
-    "@google/genai": "https://esm.sh/@google/genai@^1.12.0"
-  }
-}
-</script>
-<link rel="stylesheet" href="/index.css">
-</head>
-  <body class="bg-gradient-to-br from-brand-primary-start to-brand-primary-end font-sans">
+  </head>
+  <body>
     <div id="root"></div>
-  <script type="module" src="/index.tsx"></script>
-</body>
+    <script type="module" src="/index.tsx"></script>
+  </body>
 </html>

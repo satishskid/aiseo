@@ -18,6 +18,7 @@ import { ActionableConversionPlan } from './components/ActionableConversionPlan'
 import { ProjectManager } from './components/ProjectManager';
 import { StructuredDataInput } from './components/StructuredDataInput';
 import { UserGuidance, Notification } from './components/UserGuidance';
+import { UserManual } from './components/UserManual';
 import { useApiKey } from './context/ApiKeyContext';
 import { GeminiService, AIService } from './services/aiService';
 import { exportToGoogleCalendar, exportToICS, exportToCSV } from './services/calendarExportService';
@@ -80,13 +81,14 @@ const App: React.FC = () => {
 
   // --- New UI State for Missing Features ---
   const [showUserGuidance, setShowUserGuidance] = useState(true);
+  const [showUserManual, setShowUserManual] = useState(false);
   const [currentGuidanceStep, setCurrentGuidanceStep] = useState<StepKey>('foundation');
   const [notification, setNotification] = useState<NotificationState>({
     message: '',
     type: 'info',
     isVisible: false
   });
-  const [showApiManager, setShowApiManager] = useState(false);
+  const [showApiManagerModal, setShowApiManagerModal] = useState(false);
   const [showStructuredDataInput, setShowStructuredDataInput] = useState(false);
   const [showDemoModal, setShowDemoModal] = useState(false);
   const [showProjectManager, setShowProjectManager] = useState(false);
@@ -106,10 +108,10 @@ const App: React.FC = () => {
     if (!hasSeenWelcome && !apiKeys.gemini) {
       // Show welcome message after a short delay
       const timer = setTimeout(() => {
-        setShowApiManager(true);
+        setShowApiManagerModal(true);
         localStorage.setItem('seo-app-welcome-seen', 'true');
       }, 1500);
-      
+
       return () => clearTimeout(timer);
     }
   }, [apiKeys]);
@@ -118,7 +120,7 @@ const App: React.FC = () => {
     if (apiKeys.gemini) {
       try {
         setAiService(new GeminiService(apiKeys.gemini));
-        setShowApiManager(false);
+        setShowApiManagerModal(false);
         showNotification('API key configured successfully! 🎉', 'success');
       } catch (error) {
         console.error("Failed to initialize Gemini service:", error);
@@ -180,8 +182,6 @@ const App: React.FC = () => {
     setCurrentGuidanceStep('start');
   };
 
-  
-
   const handleBusinessSubmit = async (data: InitialBrandInput) => {
     await handleGenerateFoundationAndAudit(data);
   };
@@ -231,15 +231,36 @@ const App: React.FC = () => {
     try {
       switch (format) {
         case 'google':
-          exportToGoogleCalendar(publishingPlan.calendar);
-          showNotification('Opening Google Calendar...', 'success');
+          // For Google Calendar, we need to export each event individually
+          // or create a single event with all details
+          if (publishingPlan.calendar.length > 0) {
+            // Create a consolidated event with all calendar items
+            const consolidatedEvent: CalendarEvent = {
+              id: 'consolidated-calendar',
+              title: "SEO Content Calendar",
+              date: new Date().toISOString(),
+              time: "00:00",
+                type: "content-calendar",
+              platform: "all",
+            description: publishingPlan.calendar.map(event =>
+            `${event.date}: ${event.title} - ${event.type}\n${event.description || ''}`
+            ).join('\n\n'),
+          keywords: [],
+          status: 'completed',
+          priority: 'high'
+            };
+            exportToGoogleCalendar(consolidatedEvent);
+            showNotification('Opening Google Calendar with consolidated event...', 'success');
+          } else {
+            showNotification('No events to export to Google Calendar.', 'warning');
+          }
           break;
         case 'ics':
-          exportToICS(publishingPlan.calendar, brandData?.businessName || 'SEO Calendar');
+          exportToICS(publishingPlan.calendar);
           showNotification('Calendar file downloaded!', 'success');
           break;
         case 'csv':
-          exportToCSV(publishingPlan.calendar, brandData?.businessName || 'SEO Calendar');
+          exportToCSV(publishingPlan.calendar);
           showNotification('CSV file downloaded!', 'success');
           break;
       }
@@ -453,39 +474,50 @@ const App: React.FC = () => {
       return;
     }
 
-    setLoading(prev => ({ ...prev, structuredData: true }));
+    setLoading(prev => ({ ...prev, structured: true }));
 
     try {
-      // For now, we'll create a simple structured data output
-      // In a real implementation, this would call an AI service method
+      // Create a proper structured data output matching the expected interface
+      const socialUrls = [
+        config.socialProfiles.facebook,
+        config.socialProfiles.twitter,
+        config.socialProfiles.instagram,
+        config.socialProfiles.linkedin
+      ].filter(url => url) as string[];
+
+      const jsonData = {
+        "@context": "https://schema.org",
+        "@type": config.businessType || "LocalBusiness",
+        "name": config.businessName,
+        "description": config.description,
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": config.address.street,
+          "addressLocality": config.address.city,
+          "addressRegion": config.address.state,
+          "postalCode": config.address.postalCode,
+          "addressCountry": config.address.country
+        },
+        "telephone": config.phone,
+        "email": config.email,
+        "url": config.website,
+        "openingHoursSpecification": Object.entries(config.openingHours).map(([day, hours]) => ({
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": day,
+          "opens": typeof hours === 'object' && hours !== null ? (hours as any).open : '',
+          "closes": typeof hours === 'object' && hours !== null ? (hours as any).close : ''
+        })),
+        "priceRange": config.priceRange,
+        "sameAs": socialUrls
+      };
+
       const structuredDataOutput: StructuredDataOutput = {
-        jsonLd: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": config.businessType || "LocalBusiness",
-          "name": config.businessName,
-          "description": config.description,
-          "address": {
-            "@type": "PostalAddress",
-            "streetAddress": config.address.street,
-            "addressLocality": config.address.city,
-            "addressRegion": config.address.state,
-            "postalCode": config.address.postalCode,
-            "addressCountry": config.address.country
-          },
-          "telephone": config.phone,
-          "email": config.email,
-          "url": config.website,
-          "openingHoursSpecification": Object.entries(config.openingHours).map(([day, hours]) => ({
-            "@type": "OpeningHoursSpecification",
-            "dayOfWeek": day,
-            "opens": typeof hours === 'object' && hours !== null ? (hours as any).open : '',
-            "closes": typeof hours === 'object' && hours !== null ? (hours as any).close : ''
-          })),
-          "priceRange": config.priceRange,
-          "sameAs": config.socialProfiles
-        }, null, 2),
-        microdata: '',
-        rdfa: '',
+        jsonLd: JSON.stringify(jsonData, null, 2),
+        implementation: `Add the following JSON-LD code to the <head> section of your website:
+
+<script type="application/ld+json">
+${JSON.stringify(jsonData, null, 2)}
+</script>`,
         benefits: [
           'Enhanced search visibility',
           'Rich snippets in search results',
@@ -493,13 +525,7 @@ const App: React.FC = () => {
           'Improved click-through rates',
           'Voice search optimization'
         ],
-        implementationGuide: [
-          'Add the JSON-LD script to your website\'s <head> section',
-          'Test with Google\'s Rich Results Test tool',
-          'Monitor performance in Google Search Console',
-          'Update information regularly to maintain accuracy',
-          'Consider adding additional schema types as your business grows'
-        ]
+        testingInstructions: '1. Add the JSON-LD code to your website\'s <head> section\n2. Test with Google\'s Rich Results Test tool\n3. Monitor performance in Google Search Console\n4. Update information regularly to maintain accuracy\n5. Consider adding additional schema types as your business grows'
       };
 
       setStructuredData(structuredDataOutput);
@@ -509,8 +535,65 @@ const App: React.FC = () => {
       console.error('Error generating structured data:', error);
       showNotification('Failed to generate structured data. Please try again.', 'warning');
     } finally {
-      setLoading((prev) => ({ ...prev,       structured: false }));
+      setLoading(prev => ({ ...prev, structured: false }));
     }
+  };
+
+  // --- Project Management Functions ---
+  const handleProjectSelect = (project: Project | null) => {
+    setCurrentProject(project);
+    if (project && project.data) {
+      setBrandData(project.data.brandData);
+      setSeoAudit(project.data.seoAudit);
+      setKeywordStrategy(project.data.keywordStrategy);
+      setContentPlan(project.data.contentPlan);
+      setSocialPosts(project.data.socialPosts);
+      setTechnicalSeoPlan(project.data.technicalSeoPlan);
+      setConversionPlan(project.data.conversionPlan);
+      setPublishingPlan(project.data.publishingPlan);
+      setPerformanceAnalysis(project.data.performanceAnalysis);
+      setStructuredData(project.data.structuredData);
+      
+      // Set completed steps based on available data
+      const steps: StepKey[] = [];
+      if (project.data.keywordStrategy) steps.push('keywords');
+      if (project.data.contentPlan) steps.push('content');
+      if (project.data.publishingPlan) steps.push('publishing');
+      if (project.data.technicalSeoPlan) steps.push('technical');
+      if (project.data.conversionPlan) steps.push('conversion');
+      if (project.data.performanceAnalysis) steps.push('performance');
+      if (project.data.structuredData) steps.push('structured');
+      
+      setCompletedSteps(steps);
+    } else {
+      // Reset all data when no project is selected
+      resetAllState();
+    }
+  };
+
+  const handleProjectSave = (projectData: AllData, projectName: string) => {
+    // Create or update project in localStorage
+    const projectsData = JSON.parse(localStorage.getItem('seo-app-projects') || '[]');
+    const existingProjectIndex = projectsData.findIndex((p: Project) => p.name === projectName);
+    
+    const project: Project = {
+      id: existingProjectIndex !== -1 ? projectsData[existingProjectIndex].id : Date.now().toString(),
+      name: projectName,
+      createdAt: existingProjectIndex !== -1 ? projectsData[existingProjectIndex].createdAt : new Date().toISOString(),
+      lastModified: new Date().toISOString(),
+      data: projectData,
+      status: 'active'
+    };
+    
+    if (existingProjectIndex !== -1) {
+      projectsData[existingProjectIndex] = project;
+    } else {
+      projectsData.push(project);
+    }
+    
+    localStorage.setItem('seo-app-projects', JSON.stringify(projectsData));
+    setCurrentProject(project);
+    showNotification(`Project "${projectName}" saved successfully!`, 'success');
   };
 
   // --- Render ---
@@ -528,300 +611,303 @@ const App: React.FC = () => {
         </div>
       )}
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-        <div className="container mx-auto px-4 py-8">
-          <Header
-            onManageApiKeys={() => setShowApiManager(true)}
-            onGenerateNewDemo={() => setShowDemoModal(true)}
-            onLoadDemo={(demoName) => {
-              console.log('Loading demo:', demoName);
-            }}
-            onManageProjects={() => setShowProjectManager(true)}
-            savedDemos={[]}
-            currentProject={currentProject}
-            currentAiProvider={aiService ? 'Gemini' : null}
-          />
-          
-          <div className="flex gap-8">
-            <main className="flex-1 space-y-8">
-              <Step stepNumber="1" title="Business Information & SEO Foundation" isUnlocked={true}>
-                <BusinessInputForm
-                  isLoadingFoundation={loading.foundation}
-                  isLoadingStrategy={loading.keywords}
-                  onGenerateInitialAnalysis={handleGenerateInitialAnalysis}
-                  onConfirmAndGenerateStrategy={(data) => {
-                    setBrandData(data);
-                    handleGenerateKeywords();
-                  }}
-                  foundationData={brandData}
-                  seoAudit={seoAudit}
-                  onToggleAnalytics={() => setShowAnalytics(!showAnalytics)}
-                  isDemoMode={isDemoMode}
-                />
-                
-                {seoAudit && (
-                  <div className="mt-6 bg-white rounded-2xl shadow-xl p-6 border border-gray-200">
-                    <h3 className="text-xl font-bold text-gray-800 mb-4">🔍 SEO Audit Results</h3>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-                      <div className="text-center p-4 bg-blue-50 rounded-lg">
-                        <div className="text-2xl font-bold text-blue-600">{seoAudit.overallScore}/100</div>
-                        <div className="text-sm text-gray-600">Overall Score</div>
-                      </div>
-                      <div className="text-center p-4 bg-green-50 rounded-lg">
-                        <div className="text-2xl font-bold text-green-600">{seoAudit.technicalScore}/100</div>
-                        <div className="text-sm text-gray-600">Technical SEO</div>
-                      </div>
-                      <div className="text-center p-4 bg-purple-50 rounded-lg">
-                        <div className="text-2xl font-bold text-purple-600">{seoAudit.contentScore}/100</div>
-                        <div className="text-sm text-gray-600">Content Quality</div>
-                      </div>
-                    </div>
-                    
-                    {!isDemoMode && (
-                      <div className="text-center">
-                        <button 
-                          className={`${baseButtonClasses} ${secondaryButtonClasses}`} 
-                          onClick={handleGenerateKeywords} 
-                          disabled={loading.keywords}
-                        >
-                          🎯 Generate Keyword Strategy
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </Step>
-
-              {showAnalytics && <AnalyticsDashboard data={analyticsData} />}
-
-              <Step stepNumber="2" title="AI Keyword Research & Strategy" isUnlocked={isStepCompleted('keywords')}>
-                <OutputSection
-                  title="Generated Keywords & Strategy"
-                  isLoading={loading.keywords}
-                  content={JSON.stringify(keywordStrategy, null, 2)}
-                  placeholder="Your AI-generated keyword research will appear here..."
-                  isCompleted={isStepCompleted('keywords')}
-                />
-                {isStepCompleted('keywords') && !isDemoMode && (
-                  <div className="mt-6 text-center">
-                    <button className={`${baseButtonClasses} ${secondaryButtonClasses}`} onClick={handleGenerateContent} disabled={loading.content}>
-                      📝 Generate SEO Content
-                    </button>
-                  </div>
-                )}
-              </Step>
+      <div className="container mx-auto px-4 py-8">
+        <Header
+          onManageApiKeys={() => setShowApiManagerModal(true)}
+          onGenerateNewDemo={() => setShowDemoModal(true)}
+          onLoadDemo={(demoName) => {
+            console.log('Loading demo:', demoName);
+          }}
+          onManageProjects={() => setShowProjectManager(true)}
+          onOpenUserManual={() => setShowUserManual(true)}
+          savedDemos={[]}
+          currentProject={currentProject}
+          currentAiProvider={aiService ? 'Gemini' : null}
+        />
+        
+        <div className="flex gap-8">
+          <main className="flex-1 space-y-8">
+            <Step stepNumber="1" title="Business Information & SEO Foundation" isUnlocked={true}>
+              <BusinessInputForm
+                isLoadingFoundation={loading.foundation}
+                isLoadingStrategy={loading.keywords}
+                onGenerateInitialAnalysis={handleGenerateFoundationAndAudit}
+                onConfirmAndGenerateStrategy={(data) => {
+                  setBrandData(data);
+                  handleGenerateKeywords();
+                }}
+                foundationData={brandData}
+                seoAudit={seoAudit}
+                onToggleAnalytics={() => setShowAnalytics(!showAnalytics)}
+                isDemoMode={isDemoMode}
+                currentProject={currentProject}
+              />
               
-              <Step stepNumber="3" title="AI Content & Social Media Generation" isUnlocked={isStepCompleted('keywords')}>
-                <OutputSection
-                  title="Generated Content Strategy"
-                  isLoading={loading.content}
-                  content={JSON.stringify(contentPlan, null, 2)}
-                  placeholder="Your AI-generated content strategy will appear here..."
-                  isCompleted={isStepCompleted('content')}
-                />
-                {socialPosts && isStepCompleted('content') && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 animate-contentAppear">
-                        {SOCIAL_PLATFORMS.map(platform => (
-                            <SocialCard key={platform.id} platform={platform} posts={socialPosts[platform.id] || []} />
-                        ))}
+              {seoAudit && (
+                <div className="mt-6 bg-white rounded-2xl shadow-xl p-6 border border-gray-200">
+                  <h3 className="text-xl font-bold text-gray-800 mb-4">🔍 SEO Audit Results</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+                    <div className="text-center p-4 bg-blue-50 rounded-lg">
+                      <div className="text-2xl font-bold text-blue-600">{seoAudit.overallScore}/100</div>
+                      <div className="text-sm text-gray-600">Overall Score</div>
                     </div>
-                )}
-                {isStepCompleted('content') && !isDemoMode && (
-                  <div className="mt-6 text-center">
-                    <button className={`${baseButtonClasses} ${secondaryButtonClasses}`} onClick={handleGeneratePublishingPlan} disabled={loading.publishing}>
-                      📅 Generate Publishing Plan
-                    </button>
+                    <div className="text-center p-4 bg-green-50 rounded-lg">
+                      <div className="text-2xl font-bold text-green-600">{seoAudit.technicalScore}/100</div>
+                      <div className="text-sm text-gray-600">Technical SEO</div>
+                    </div>
+                    <div className="text-center p-4 bg-purple-50 rounded-lg">
+                      <div className="text-2xl font-bold text-purple-600">{seoAudit.contentScore}/100</div>
+                      <div className="text-sm text-gray-600">Content Quality</div>
+                    </div>
                   </div>
-                )}
-              </Step>
-
-              <Step stepNumber="4" title="Actionable Publishing Calendar & Plan" isUnlocked={isStepCompleted('publishing')}>
-                  <PublishingCalendar
-                      plan={publishingPlan}
-                      isLoading={loading.publishing}
-                      onEventClick={setSelectedEvent}
-                  />
                   
-                  {/* Calendar Download Component */}
-                  {publishingPlan && (
-                    <div className="mt-6">
-                      <CalendarDownload
-                        publishingPlan={publishingPlan}
-                        onDownload={handleCalendarDownload}
-                        isLoading={loading.publishing}
-                      />
+                  {!isDemoMode && (
+                    <div className="text-center">
+                      <button 
+                        className={`${baseButtonClasses} ${secondaryButtonClasses}`} 
+                        onClick={handleGenerateKeywords} 
+                        disabled={loading.keywords}
+                      >
+                        🎯 Generate Keyword Strategy
+                      </button>
                     </div>
                   )}
-                  
-                   {isStepCompleted('publishing') && !isDemoMode &&(
-                     <div className="mt-6 text-center">
-                       <button className={`${baseButtonClasses} ${secondaryButtonClasses}`} onClick={handleGenerateTechnicalSEO} disabled={loading.technical}>
-                         ⚙️ Generate Technical SEO
-                       </button>
-                     </div>
-                   )}
-              </Step>
+                </div>
+              )}
+            </Step>
 
-              <Step stepNumber="5" title="Technical SEO for Indian Market" isUnlocked={isStepCompleted('publishing')}>
-                {loading.technical ? (
-                  <div className="text-center p-8">
-                    <div className="w-12 h-12 mx-auto mb-4 border-4 border-gray-200 border-t-brand-primary-start rounded-full animate-spin"></div>
-                    <p className="text-gray-600 font-semibold">Generating technical SEO recommendations...</p>
+            {showAnalytics && <AnalyticsDashboard data={analyticsData} />}
+
+            <Step stepNumber="2" title="AI Keyword Research & Strategy" isUnlocked={isStepCompleted('keywords')}>
+              <OutputSection
+                title="Generated Keywords & Strategy"
+                isLoading={loading.keywords}
+                content={JSON.stringify(keywordStrategy, null, 2)}
+                placeholder="Your AI-generated keyword research will appear here..."
+                isCompleted={isStepCompleted('keywords')}
+              />
+              {isStepCompleted('keywords') && !isDemoMode && (
+                <div className="mt-6 text-center">
+                  <button className={`${baseButtonClasses} ${secondaryButtonClasses}`} onClick={handleGenerateContent} disabled={loading.content}>
+                    📝 Generate SEO Content
+                  </button>
+                </div>
+              )}
+            </Step>
+            
+            <Step stepNumber="3" title="AI Content & Social Media Generation" isUnlocked={isStepCompleted('keywords')}>
+              <OutputSection
+                title="Generated Content Strategy"
+                isLoading={loading.content}
+                content={JSON.stringify(contentPlan, null, 2)}
+                placeholder="Your AI-generated content strategy will appear here..."
+                isCompleted={isStepCompleted('content')}
+              />
+              {socialPosts && isStepCompleted('content') && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 animate-contentAppear">
+                      {SOCIAL_PLATFORMS.map(platform => (
+                          <SocialCard key={platform.id} platform={platform} posts={socialPosts[platform.id] || []} />
+                      ))}
                   </div>
-                ) : technicalSeoPlan ? (
-                  <ActionableTechnicalSeo data={technicalSeoPlan} />
-                ) : (
-                  <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 border-2 border-dashed border-gray-300">
-                    <h3 className="text-lg font-bold text-gray-700">Technical SEO Strategy</h3>
-                    <p className="text-gray-500 italic p-4 mt-4">Your technical SEO recommendations will appear here...</p>
+              )}
+              {isStepCompleted('content') && !isDemoMode && (
+                <div className="mt-6 text-center">
+                  <button className={`${baseButtonClasses} ${secondaryButtonClasses}`} onClick={handleGeneratePublishingPlan} disabled={loading.publishing}>
+                    📅 Generate Publishing Plan
+                  </button>
+                </div>
+              )}
+            </Step>
+
+            <Step stepNumber="4" title="Actionable Publishing Calendar & Plan" isUnlocked={isStepCompleted('publishing')}>
+                <PublishingCalendar
+                    plan={publishingPlan}
+                    isLoading={loading.publishing}
+                    onEventClick={setSelectedEvent}
+                />
+                
+                {/* Calendar Download Component */}
+                {publishingPlan && (
+                  <div className="mt-6">
+                    <CalendarDownload
+                      publishingPlan={publishingPlan}
+                      onDownload={handleCalendarDownload}
+                      isLoading={loading.publishing}
+                    />
                   </div>
                 )}
                 
-                {/* Structured Data Input */}
-                {isStepCompleted('technical') && (
-                  <div className="mt-6">
-                    <div className="flex justify-center gap-4">
-                      <button 
-                        className={`${baseButtonClasses} bg-gradient-to-r from-green-600 to-blue-600 text-white`}
-                        onClick={() => setShowStructuredDataInput(true)}
-                      >
-                        📊 Add Structured Data
-                      </button>
-                      {!isDemoMode && (
-                        <button className={`${baseButtonClasses} ${secondaryButtonClasses}`} onClick={handleGenerateConversion} disabled={loading.conversion}>
-                          💰 Generate Conversion Strategy
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </Step>
+                 {isStepCompleted('publishing') && !isDemoMode &&(
+                   <div className="mt-6 text-center">
+                     <button className={`${baseButtonClasses} ${secondaryButtonClasses}`} onClick={handleGenerateTechnicalSEO} disabled={loading.technical}>
+                       ⚙️ Generate Technical SEO
+                     </button>
+                   </div>
+                 )}
+            </Step>
 
-              {/* Structured Data Input Modal/Section */}
-              {showStructuredDataInput && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                  <div className="bg-white rounded-2xl max-w-4xl max-h-[90vh] overflow-y-auto">
-                    <div className="sticky top-0 bg-white border-b p-4 flex justify-between items-center">
-                      <h2 className="text-xl font-bold">Configure Structured Data</h2>
-                      <button
-                        onClick={() => setShowStructuredDataInput(false)}
-                        className="text-gray-500 hover:text-gray-700 text-2xl"
-                      >
-                        ×
+            <Step stepNumber="5" title="Technical SEO for Indian Market" isUnlocked={isStepCompleted('publishing')}>
+              {loading.technical ? (
+                <div className="text-center p-8">
+                  <div className="w-12 h-12 mx-auto mb-4 border-4 border-gray-200 border-t-brand-primary-start rounded-full animate-spin"></div>
+                  <p className="text-gray-600 font-semibold">Generating technical SEO recommendations...</p>
+                </div>
+              ) : technicalSeoPlan ? (
+                <ActionableTechnicalSeo data={technicalSeoPlan} />
+              ) : (
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 border-2 border-dashed border-gray-300">
+                  <h3 className="text-lg font-bold text-gray-700">Technical SEO Strategy</h3>
+                  <p className="text-gray-500 italic p-4 mt-4">Your technical SEO recommendations will appear here...</p>
+                </div>
+              )}
+              
+              {/* Structured Data Input */}
+              {isStepCompleted('technical') && (
+                <div className="mt-6">
+                  <div className="flex justify-center gap-4">
+                    <button 
+                      className={`${baseButtonClasses} bg-gradient-to-r from-green-600 to-blue-600 text-white`}
+                      onClick={() => setShowStructuredDataInput(true)}
+                    >
+                      📊 Add Structured Data
+                    </button>
+                    {!isDemoMode && (
+                      <button className={`${baseButtonClasses} ${secondaryButtonClasses}`} onClick={handleGenerateConversion} disabled={loading.conversion}>
+                        💰 Generate Conversion Strategy
                       </button>
-                    </div>
-                    <div className="p-6">
-                      <StructuredDataInput
-                        onSubmit={handleGenerateStructuredData}
-                        isLoading={loading.structured}
-                      />
-                    </div>
+                    )}
                   </div>
                 </div>
               )}
+            </Step>
 
-              {/* Structured Data Output */}
-              {structuredData && (
-                <Step stepNumber="5.1" title="Generated Structured Data" isUnlocked={true}>
-                  <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-200">
-                    <h3 className="text-xl font-bold text-gray-800 mb-4">📊 Your Structured Data</h3>
-                    
-                    <div className="space-y-6">
-                      <div>
-                        <h4 className="font-semibold text-gray-700 mb-2">JSON-LD Code:</h4>
-                        <div className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
-                          <pre className="text-sm">{structuredData.jsonLd}</pre>
-                        </div>
-                        <button
-                          onClick={() => {
-                            navigator.clipboard.writeText(structuredData.jsonLd);
-                            showNotification('Structured data copied to clipboard!', 'success');
-                          }}
-                          className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                        >
-                          📋 Copy Code
-                        </button>
+            {/* Structured Data Input Modal/Section */}
+            {showStructuredDataInput && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                <div className="bg-white rounded-2xl max-w-4xl max-h-[90vh] overflow-y-auto">
+                  <div className="sticky top-0 bg-white border-b p-4 flex justify-between items-center">
+                    <h2 className="text-xl font-bold">Configure Structured Data</h2>
+                    <button
+                      onClick={() => setShowStructuredDataInput(false)}
+                      className="text-gray-500 hover:text-gray-700 text-2xl"
+                    >
+                      ×
+                    </button>
+                  </div>
+                  <div className="p-6">
+                    <StructuredDataInput
+                      onSubmit={handleGenerateStructuredData}
+                      isLoading={loading.structured}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Structured Data Output */}
+            {structuredData && (
+              <Step stepNumber="5.1" title="Generated Structured Data" isUnlocked={true}>
+                <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-200">
+                  <h3 className="text-xl font-bold text-gray-800 mb-4">📊 Your Structured Data</h3>
+                  
+                  <div className="space-y-6">
+                    <div>
+                      <h4 className="font-semibold text-gray-700 mb-2">JSON-LD Code:</h4>
+                      <div className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+                        <pre className="text-sm">{structuredData.jsonLd}</pre>
                       </div>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(structuredData.jsonLd);
+                          showNotification('Structured data copied to clipboard!', 'success');
+                        }}
+                        className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                      >
+                        📋 Copy Code
+                      </button>
+                    </div>
 
-                      <div>
-                        <h4 className="font-semibold text-gray-700 mb-2">Implementation Instructions:</h4>
-                        <div className="bg-blue-50 p-4 rounded-lg">
-                          <pre className="text-sm text-gray-700 whitespace-pre-wrap">{structuredData.implementation}</pre>
-                        </div>
-                      </div>
-
-                      <div>
-                        <h4 className="font-semibold text-gray-700 mb-2">Benefits:</h4>
-                        <ul className="list-disc list-inside space-y-1 text-gray-600">
-                          {structuredData.benefits.map((benefit, index) => (
-                            <li key={index}>{benefit}</li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      <div>
-                        <h4 className="font-semibold text-gray-700 mb-2">Testing:</h4>
-                        <p className="text-gray-600">{structuredData.testingInstructions}</p>
+                    <div>
+                      <h4 className="font-semibold text-gray-700 mb-2">Implementation Instructions:</h4>
+                      <div className="bg-blue-50 p-4 rounded-lg">
+                        <pre className="text-sm text-gray-700 whitespace-pre-wrap">{structuredData.implementation}</pre>
                       </div>
                     </div>
+
+                    <div>
+                      <h4 className="font-semibold text-gray-700 mb-2">Benefits:</h4>
+                      <ul className="list-disc list-inside space-y-1 text-gray-600">
+                        {structuredData.benefits.map((benefit, index) => (
+                          <li key={index}>{benefit}</li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div>
+                      <h4 className="font-semibold text-gray-700 mb-2">Testing:</h4>
+                      <p className="text-gray-600">{structuredData.testingInstructions}</p>
+                    </div>
                   </div>
-                </Step>
+                </div>
+              </Step>
+            )}
+
+            <Step stepNumber="6" title="Conversion Optimization for Indian Users" isUnlocked={isStepCompleted('technical')}>
+              {loading.conversion ? (
+                <div className="text-center p-8">
+                  <div className="w-12 h-12 mx-auto mb-4 border-4 border-gray-200 border-t-brand-primary-start rounded-full animate-spin"></div>
+                  <p className="text-gray-600 font-semibold">Generating conversion optimization plan...</p>
+                </div>
+              ) : conversionPlan ? (
+                <ActionableConversionPlan data={conversionPlan} />
+              ) : (
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 border-2 border-dashed border-gray-300">
+                  <h3 className="text-lg font-bold text-gray-700">Conversion Strategy</h3>
+                  <p className="text-gray-500 italic p-4 mt-4">Your conversion optimization plan will appear here...</p>
+                </div>
               )}
+            </Step>
+            
+            <Step stepNumber="7" title="Performance Review & AI Analysis" isUnlocked={isStepCompleted('conversion')}>
+              <PerformanceInputForm
+                isLoading={loading.performance}
+                onSubmit={handleAnalyzePerformance}
+              />
+              <OutputSection
+                title="Performance Analysis & Recommendations"
+                isLoading={loading.performance}
+                content={JSON.stringify(performanceAnalysis, null, 2)}
+                placeholder="Your AI-powered performance analysis will appear here after you submit your data."
+                isCompleted={isStepCompleted('performance')}
+              />
+            </Step>
 
-              <Step stepNumber="6" title="Conversion Optimization for Indian Users" isUnlocked={isStepCompleted('technical')}>
-                {loading.conversion ? (
-                  <div className="text-center p-8">
-                    <div className="w-12 h-12 mx-auto mb-4 border-4 border-gray-200 border-t-brand-primary-start rounded-full animate-spin"></div>
-                    <p className="text-gray-600 font-semibold">Generating conversion optimization plan...</p>
-                  </div>
-                ) : conversionPlan ? (
-                  <ActionableConversionPlan data={conversionPlan} />
-                ) : (
-                  <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 border-2 border-dashed border-gray-300">
-                    <h3 className="text-lg font-bold text-gray-700">Conversion Strategy</h3>
-                    <p className="text-gray-500 italic p-4 mt-4">Your conversion optimization plan will appear here...</p>
-                  </div>
-                )}
-              </Step>
-              
-              <Step stepNumber="7" title="Performance Review & AI Analysis" isUnlocked={isStepCompleted('conversion')}>
-                <PerformanceInputForm
-                  isLoading={loading.performance}
-                  onSubmit={handleAnalyzePerformance}
-                />
-                <OutputSection
-                  title="Performance Analysis & Recommendations"
-                  isLoading={loading.performance}
-                  content={JSON.stringify(performanceAnalysis, null, 2)}
-                  placeholder="Your AI-powered performance analysis will appear here after you submit your data."
-                  isCompleted={isStepCompleted('performance')}
-                />
-              </Step>
-
-              {isStepCompleted('conversion') && <FinalActions allData={allData} />}
-            </main>
-          </div>
+            {isStepCompleted('conversion') && <FinalActions allData={allData} />}
+          </main>
         </div>
-        {isDemoMode && <SalesCoachPanel insights={salesInsights} isOpen={isSalesCoachOpen} onToggle={() => setSalesCoachOpen(p => !p)} />}
-        
-        {/* User Guidance */}
-        <UserGuidance
-          currentStep={currentGuidanceStep}
-          completedSteps={completedSteps}
-          onClose={() => setShowUserGuidance(false)}
-          isVisible={showUserGuidance}
-        />
-        
-        {/* Notification */}
-        <Notification
-          message={notification.message}
-          type={notification.type}
-          isVisible={notification.isVisible}
-          onClose={hideNotification}
-        />
+      </div>
+      {isDemoMode && <SalesCoachPanel insights={salesInsights} isOpen={isSalesCoachOpen} onToggle={() => setSalesCoachOpen(p => !p)} />}
+      
+      {/* User Guidance */}
+      <UserGuidance
+        currentStep={currentGuidanceStep}
+        completedSteps={completedSteps}
+        onClose={() => setShowUserGuidance(false)}
+        isVisible={showUserGuidance}
+      />
+      
+      {/* Notification */}
+      <Notification
+        message={notification.message}
+        type={notification.type}
+        isVisible={notification.isVisible}
+        onClose={hideNotification}
+      />
     </div>
     
     {/* Modals */}
-    <ApiManagerModal isOpen={apiManagerOpen} onClose={() => setApiManagerOpen(false)} />
+    {showUserManual && <UserManual onClose={() => setShowUserManual(false)} />}
+    <ApiManagerModal isOpen={showApiManagerModal} onClose={() => setShowApiManagerModal(false)} />
     {showDemoModal && (
       <DemoGenerationModal
         isOpen={showDemoModal}
@@ -835,24 +921,9 @@ const App: React.FC = () => {
     )}
     {showProjectManager && (
       <ProjectManager
-        currentProject={null}
-        onProjectSelect={(project) => {
-          if (project && project.data) {
-            setBrandData(project.data.brandData);
-            setSeoAudit(project.data.seoAudit);
-            setKeywordStrategy(project.data.keywordStrategy);
-            setContentPlan(project.data.contentPlan);
-            setSocialPosts(project.data.socialPosts);
-            setTechnicalSeoPlan(project.data.technicalSeoPlan);
-            setConversionPlan(project.data.conversionPlan);
-            setPublishingPlan(project.data.publishingPlan);
-            setPerformanceAnalysis(project.data.performanceAnalysis);
-            setStructuredData(project.data.structuredData);
-          }
-        }}
-        onProjectSave={(data, name) => {
-          console.log('Saving project:', name, data);
-        }}
+        currentProject={currentProject}
+        onProjectSelect={handleProjectSelect}
+        onProjectSave={handleProjectSave}
         isOpen={showProjectManager}
         onClose={() => setShowProjectManager(false)}
       />

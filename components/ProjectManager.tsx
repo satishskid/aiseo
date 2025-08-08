@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import type { Project, AllData } from '../types';
+import type { Project, AllData, BrandData } from '../types';
 
 interface ProjectManagerProps {
   currentProject: Project | null;
@@ -53,13 +53,22 @@ export const ProjectManager: React.FC<ProjectManagerProps> = ({
     const newProject: Project = {
       id: Date.now().toString(),
       name: newProjectName.trim(),
-      website: newProjectWebsite.trim(),
-      industry: newProjectIndustry.trim(),
       createdAt: new Date().toISOString(),
       lastModified: new Date().toISOString(),
       data: {
-        brandData: null,
-        analyticsData: { keywords: 0, contentPieces: 0, socialPosts: 0, estimatedReach: 0, competitiveScore: 0, seoScore: 0 },
+        brandData: {
+          name: newProjectName.trim(),
+          website: newProjectWebsite.trim(),
+          businessType: newProjectIndustry.trim(),
+          serviceType: '',
+          locationScope: 'pan-india',
+          specificLocations: '',
+          selectedCities: [],
+          description: '',
+          targetCustomer: '',
+          keyServices: '',
+        },
+        seoAudit: null,
         keywordStrategy: null,
         contentPlan: null,
         socialPosts: null,
@@ -67,9 +76,10 @@ export const ProjectManager: React.FC<ProjectManagerProps> = ({
         conversionPlan: null,
         publishingPlan: null,
         performanceAnalysis: null,
-        seoAudit: null,
-        salesInsights: []
-      }
+        structuredData: null,
+        analyticsData: { keywords: 0, contentPieces: 0, socialPosts: 0, estimatedReach: 0, competitiveScore: 0, seoScore: 0 }
+      },
+      status: 'active'
     };
 
     const updatedProjects = [...projects, newProject];
@@ -200,8 +210,12 @@ export const ProjectManager: React.FC<ProjectManagerProps> = ({
                 <div className="flex justify-between items-start">
                   <div>
                     <h4 className="font-bold text-green-800">{currentProject.name}</h4>
-                    <p className="text-green-600 text-sm">{currentProject.website}</p>
-                    <p className="text-green-600 text-sm">{currentProject.industry}</p>
+                    {currentProject.data.brandData?.website && (
+                      <p className="text-green-600 text-sm">{currentProject.data.brandData.website}</p>
+                    )}
+                    {currentProject.data.brandData?.businessType && (
+                      <p className="text-green-600 text-sm">{currentProject.data.brandData.businessType}</p>
+                    )}
                     <p className="text-green-500 text-xs">Last modified: {formatDate(currentProject.lastModified)}</p>
                   </div>
                   <button
@@ -247,11 +261,11 @@ export const ProjectManager: React.FC<ProjectManagerProps> = ({
                     <div className="flex justify-between items-start mb-3">
                       <div className="flex-1">
                         <h4 className="font-bold text-gray-800 truncate">{project.name}</h4>
-                        {project.website && (
-                          <p className="text-gray-600 text-sm truncate">{project.website}</p>
+                        {project.data.brandData?.website && (
+                          <p className="text-gray-600 text-sm truncate">{project.data.brandData.website}</p>
                         )}
-                        {project.industry && (
-                          <p className="text-gray-500 text-sm">{project.industry}</p>
+                        {project.data.brandData?.businessType && (
+                          <p className="text-gray-500 text-sm">{project.data.brandData.businessType}</p>
                         )}
                       </div>
                       <div className="flex space-x-1">

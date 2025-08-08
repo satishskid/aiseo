@@ -7,11 +7,12 @@ interface HeaderProps {
     onGenerateNewDemo: () => void;
     onLoadDemo: (demoName: string) => void;
     onManageProjects: () => void;
+    onOpenUserManual: () => void;
     savedDemos: string[];
     currentProject: Project | null;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onManageApiKeys, onGenerateNewDemo, onLoadDemo, onManageProjects, savedDemos, currentProject }) => {
+export const Header: React.FC<HeaderProps> = ({ onManageApiKeys, onGenerateNewDemo, onLoadDemo, onManageProjects, onOpenUserManual, savedDemos, currentProject }) => {
     const [isHubOpen, setIsHubOpen] = useState(false);
     const [selectedDemo, setSelectedDemo] = useState('live');
 
@@ -24,6 +25,16 @@ export const Header: React.FC<HeaderProps> = ({ onManageApiKeys, onGenerateNewDe
     return (
         <header className="bg-gradient-to-br from-brand-header-start to-brand-header-end text-white p-6 md:p-10 text-center relative overflow-hidden">
             <div className="absolute top-4 right-4 md:top-6 md:right-6 z-20 flex items-center space-x-3">
+                {/* User Manual Button */}
+                <button 
+                    onClick={onOpenUserManual}
+                    className="bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white font-semibold py-2 px-4 border border-white/30 rounded-lg transition-colors duration-300 text-sm flex items-center gap-2"
+                    title="Open User Manual"
+                >
+                    <span>📖</span>
+                    User Manual
+                </button>
+
                 {/* Project Manager Button */}
                 <button 
                     onClick={onManageProjects}

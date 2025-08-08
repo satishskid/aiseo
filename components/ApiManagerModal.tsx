@@ -1,8 +1,8 @@
-
 import React, { useState } from 'react';
 import { useApiKey } from '../context/ApiKeyContext';
 import { API_PROVIDERS, baseButtonClasses, primaryButtonClasses } from '../constants';
 import type { ApiKeys, ApiProviderId } from '../types';
+import { validateApiKey } from '../services/apiValidationService';
 
 interface ApiManagerModalProps {
   isOpen: boolean;
@@ -12,17 +12,38 @@ interface ApiManagerModalProps {
 export const ApiManagerModal: React.FC<ApiManagerModalProps> = ({ isOpen, onClose }) => {
   const { apiKeys, setApiKeys } = useApiKey();
   const [localKeys, setLocalKeys] = useState<ApiKeys>(apiKeys);
+  const [validating, setValidating] = useState<Record<ApiProviderId, boolean>>({});
+  const [validationResults, setValidationResults] = useState<Record<ApiProviderId, boolean | null>>({});
 
   const handleSave = () => {
     setApiKeys(localKeys);
     onClose();
   };
-  
+
   const handleKeyChange = (providerId: ApiProviderId, value: string) => {
     setLocalKeys(prev => ({
         ...prev,
         [providerId]: value,
     }));
+
+    // Clear validation result when key changes
+    setValidationResults(prev => ({
+      ...prev,
+      [providerId]: null
+    }));
+  };
+
+  const validateKey = async (providerId: ApiProviderId, key: string) => {
+    setValidating(prev => ({ ...prev, [providerId]: true }));
+    try {
+      const isValid = await validateApiKey(providerId, key);
+      setValidationResults(prev => ({ ...prev, [providerId]: isValid }));
+    } catch (error) {
+      console.error(`Error validating ${providerId} key:`, error);
+      setValidationResults(prev => ({ ...prev, [providerId]: false }));
+    } finally {
+      setValidating(prev => ({ ...prev, [providerId]: false }));
+    }
   };
 
   if (!isOpen) {
@@ -75,10 +96,10 @@ export const ApiManagerModal: React.FC<ApiManagerModalProps> = ({ isOpen, onClos
                     </span>
                   </div>
                   {provider.isEnabled && (
-                    <a 
-                      href={provider.getApiKeyUrl} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
+                    <a
+                      href={provider.getApiKeyUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="text-sm bg-brand-primary-start text-white px-3 py-1 rounded-full hover:bg-brand-primary-end transition-colors"
                     >
                       Get Key
@@ -87,17 +108,50 @@ export const ApiManagerModal: React.FC<ApiManagerModalProps> = ({ isOpen, onClos
                 </div>
 
                 <div className="mb-3">
-                  <input
-                    id={`${provider.id}-key`}
-                    type="password"
-                    value={localKeys[provider.id] || ''}
-                    onChange={(e) => handleKeyChange(provider.id, e.target.value)}
-                    className="w-full py-2 px-3 border-2 border-gray-300 rounded-lg text-sm transition duration-300 focus:outline-none focus:ring-2 focus:ring-brand-primary-start focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-                    placeholder={provider.isEnabled ? `Enter ${provider.name} API key...` : "Coming soon"}
-                    disabled={!provider.isEnabled}
-                  />
+                  <div className="flex gap-2">
+                    <input
+                      id={`${provider.id}-key`}
+                      type="password"
+                      value={localKeys[provider.id] || ''}
+                      onChange={(e) => handleKeyChange(provider.id, e.target.value)}
+                      className="flex-1 py-2 px-3 border-2 border-gray-300 rounded-lg text-sm transition duration-300 focus:outline-none focus:ring-2 focus:ring-brand-primary-start focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      placeholder={provider.isEnabled ? `Enter ${provider.name} API key...` : "Coming soon"}
+                      disabled={!provider.isEnabled}
+                    />
+                    {provider.isEnabled && localKeys[provider.id] && (
+                      <button
+                        onClick={() => validateKey(provider.id, localKeys[provider.id] || '')}
+                        disabled={validating[provider.id]}
+                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                          validating[provider.id]
+                            ? 'bg-gray-300 text-gray-600'
+                            : 'bg-brand-primary-start text-white hover:bg-brand-primary-end'
+                        }`}
+                      >
+                        {validating[provider.id] ? 'Checking...' : 'Test'}
+                      </button>
+                    )}
+                  </div>
+
+                  {validationResults[provider.id] !== null && (
+                    <div className={`mt-2 text-sm flex items-center ${
+                      validationResults[provider.id] ? 'text-green-600' : 'text-red-600'
+                    }`}>
+                      {validationResults[provider.id] ? (
+                        <>
+                          <span className="mr-2">✅</span>
+                          <span>API key is valid and ready to use!</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="mr-2">❌</span>
+                          <span>Invalid API key. Please check and try again.</span>
+                        </>
+                      )}
+                    </div>
+                  )}
                 </div>
-                
+
                 <p className="text-xs text-gray-600">
                   <strong>Free Tier:</strong> {provider.freeTierInfo}
                 </p>

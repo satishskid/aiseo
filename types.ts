@@ -1,3 +1,5 @@
+export type SocialPlatform = 'linkedin' | 'twitter' | 'facebook' | 'instagram';
+
 export interface InitialBrandInput {
   name: string;
   website: string;
@@ -316,6 +318,11 @@ export interface PerformanceInputs {
   goals: string[];
   timeframe: string;
   budget: number;
+  gscQueries?: string;
+  gaTraffic?: string;
+  metaInsights?: string;
+  linkedinInsights?: string;
+  twitterInsights?: string;
 }
 
 export interface PerformanceAnalysis {
@@ -446,6 +453,8 @@ export interface AllData {
   conversionPlan: ConversionPlan | null;
   performanceAnalysis: PerformanceAnalysis | null;
   structuredData?: StructuredDataOutput | null;
+  analyticsData?: AnalyticsData;
+
 }
 
 export interface ApiKeys {
@@ -453,6 +462,7 @@ export interface ApiKeys {
   openai: string;
   claude: string;
   groq: string;
+  openrouter: string;
 }
 
 export type ApiProviderId = keyof ApiKeys;

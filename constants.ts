@@ -83,7 +83,7 @@ export const API_PROVIDERS: ApiProviderConfig[] = [
         rank: 2,
         freeTierInfo: 'Free tier with ultra-fast inference speed. Great alternative.',
         getApiKeyUrl: 'https://console.groq.com/keys',
-        isEnabled: false, // To be enabled when service is implemented
+        isEnabled: true, // Now enabled
     },
     {
         id: 'openrouter',
@@ -91,7 +91,7 @@ export const API_PROVIDERS: ApiProviderConfig[] = [
         rank: 3,
         freeTierInfo: 'Access to multiple free models including Qwen and Kimi.',
         getApiKeyUrl: 'https://openrouter.ai/keys',
-        isEnabled: false, // To be enabled when service is implemented
+        isEnabled: true, // Now enabled
     },
     {
         id: 'claude',
@@ -99,7 +99,7 @@ export const API_PROVIDERS: ApiProviderConfig[] = [
         rank: 4,
         freeTierInfo: 'Free tier credits available. Excellent for creative content.',
         getApiKeyUrl: 'https://console.anthropic.com/',
-        isEnabled: false, // To be enabled when service is implemented
+        isEnabled: true, // Now enabled
     },
     {
         id: 'openai',
@@ -107,7 +107,7 @@ export const API_PROVIDERS: ApiProviderConfig[] = [
         rank: 5,
         freeTierInfo: 'Paid service with free credits for new users.',
         getApiKeyUrl: 'https://platform.openai.com/api-keys',
-        isEnabled: false, // To be enabled when service is implemented
+        isEnabled: true, // Now enabled
     }
 ];
 

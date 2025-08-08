@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import type { ApiKeys } from '../types';
 
@@ -7,7 +6,8 @@ interface ApiKeyContextType {
   setApiKeys: (keys: ApiKeys) => void;
 }
 
-const ApiKeyContext = createContext<ApiKeyContextType | undefined>(undefined);
+// Create context with a default value that won't cause issues
+const ApiKeyContext = createContext<ApiKeyContextType | null>(null);
 
 export const ApiKeyProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [apiKeys, setApiKeysInternal] = useState<ApiKeys>(() => {
@@ -41,7 +41,7 @@ export const ApiKeyProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
 export const useApiKey = (): ApiKeyContextType => {
   const context = useContext(ApiKeyContext);
-  if (context === undefined) {
+  if (context === null) {
     throw new Error('useApiKey must be used within an ApiKeyProvider');
   }
   return context;
