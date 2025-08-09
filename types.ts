@@ -332,6 +332,18 @@ export interface PerformanceAnalysis {
   projectedResults: ProjectedResult[];
   actionPlan: ActionItem[];
   competitorAnalysis: CompetitorInsight[];
+  organicTrafficProjection?: string;
+  socialMediaProjection?: string;
+  engagementMetrics?: {
+    avgTimeOnPage: string;
+    bounceRate: string;
+    pagesPerSession: string;
+  };
+  conversionEstimates?: {
+    leadGeneration: string;
+    salesConversion: string;
+    roiProjection: string;
+  };
 }
 
 export interface PerformanceMetric {

@@ -5,6 +5,7 @@ interface UserGuidanceProps {
   completedSteps: string[];
   onClose: () => void;
   isVisible: boolean;
+  onStepChange?: (nextStep: string) => void; // Add this prop for step progression
 }
 
 interface GuidanceStep {
@@ -126,26 +127,27 @@ const GUIDANCE_STEPS: GuidanceStep[] = [
   }
 ];
 
-export const UserGuidance: React.FC<UserGuidanceProps> = ({ 
-  currentStep, 
-  completedSteps, 
-  onClose, 
-  isVisible 
+export const UserGuidance: React.FC<UserGuidanceProps> = ({
+  currentStep,
+  completedSteps,
+  onClose,
+  isVisible,
+  onStepChange
 }) => {
-  const [currentGuidance, setCurrentGuidance] = useState<GuidanceStep | null>(null);
-  const [showTips, setShowTips] = useState(false);
+  const [showTips, setShowTips] = useState(true);
 
-  useEffect(() => {
-    const guidance = GUIDANCE_STEPS.find(step => step.id === currentStep);
-    setCurrentGuidance(guidance || GUIDANCE_STEPS[0]);
-  }, [currentStep]);
+  if (!isVisible) return null;
 
-  if (!isVisible || !currentGuidance) return null;
+  const currentGuidance = GUIDANCE_STEPS.find(step => step.id === currentStep) || GUIDANCE_STEPS[0];
+  const progress = (GUIDANCE_STEPS.findIndex(s => s.id === currentStep) + 1) / GUIDANCE_STEPS.length * 100;
 
-  const progress = (completedSteps.length / GUIDANCE_STEPS.length) * 100;
+  // Find the index of the current step
+  const currentStepIndex = GUIDANCE_STEPS.findIndex(s => s.id === currentStep);
+  const hasNextStep = currentStepIndex < GUIDANCE_STEPS.length - 1;
+  const nextStep = hasNextStep ? GUIDANCE_STEPS[currentStepIndex + 1] : null;
 
   return (
-    <div className="fixed top-4 right-4 w-80 bg-white rounded-2xl shadow-2xl border border-gray-200 z-50 animate-slideInRight">
+    <div className="fixed bottom-4 right-4 w-80 bg-white rounded-2xl shadow-xl z-50 border border-gray-200">
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 rounded-t-2xl">
         <div className="flex justify-between items-start">
@@ -162,11 +164,11 @@ export const UserGuidance: React.FC<UserGuidanceProps> = ({
             ×
           </button>
         </div>
-        
+
         {/* Progress Bar */}
         <div className="mt-3">
           <div className="bg-blue-400 rounded-full h-2">
-            <div 
+            <div
               className="bg-white rounded-full h-2 transition-all duration-500"
               style={{ width: `${progress}%` }}
             ></div>
@@ -230,12 +232,22 @@ export const UserGuidance: React.FC<UserGuidanceProps> = ({
           <div className="text-xs text-gray-500">
             Need help? Check the user manual
           </div>
-          <button
-            onClick={onClose}
-            className="text-xs text-blue-600 hover:text-blue-800 font-medium"
-          >
-            Hide Guide
-          </button>
+          <div className="flex space-x-2">
+            <button
+              onClick={onClose}
+              className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+            >
+              Hide Guide
+            </button>
+            {hasNextStep && onStepChange && (
+              <button
+                onClick={() => nextStep && onStepChange(nextStep.id)}
+                className="text-xs bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 font-medium"
+              >
+                Next →
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import type { Project } from '../types';
 
@@ -8,11 +7,12 @@ interface HeaderProps {
     onLoadDemo: (demoName: string) => void;
     onManageProjects: () => void;
     onOpenUserManual: () => void;
+    onSignOut: () => void;
     savedDemos: string[];
     currentProject: Project | null;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onManageApiKeys, onGenerateNewDemo, onLoadDemo, onManageProjects, onOpenUserManual, savedDemos, currentProject }) => {
+export const Header: React.FC<HeaderProps> = ({ onManageApiKeys, onGenerateNewDemo, onLoadDemo, onManageProjects, onOpenUserManual, onSignOut, savedDemos, currentProject }) => {
     const [isHubOpen, setIsHubOpen] = useState(false);
     const [selectedDemo, setSelectedDemo] = useState('live');
 
@@ -47,6 +47,16 @@ export const Header: React.FC<HeaderProps> = ({ onManageApiKeys, onGenerateNewDe
                     ) : (
                         'Projects'
                     )}
+                </button>
+                
+                {/* Sign Out Button */}
+                <button 
+                    onClick={onSignOut}
+                    className="bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white font-semibold py-2 px-4 border border-white/30 rounded-lg transition-colors duration-300 text-sm flex items-center gap-2"
+                    title="Sign Out"
+                >
+                    <span>🚪</span>
+                    Sign Out
                 </button>
                 
                 {/* Demo Hub Button */}

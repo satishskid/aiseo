@@ -2,9 +2,14 @@ import React from 'react';
 
 interface UserManualProps {
   onClose: () => void;
+  isOpen?: boolean;
 }
 
-export const UserManual: React.FC<UserManualProps> = ({ onClose }) => {
+export const UserManual: React.FC<UserManualProps> = ({ onClose, isOpen = true }) => {
+  if (!isOpen) {
+    return null;
+  }
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div className="bg-white rounded-lg shadow-2xl p-8 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
@@ -30,35 +35,40 @@ export const UserManual: React.FC<UserManualProps> = ({ onClose }) => {
             <p><strong>Tip:</strong> The more accurate this information is, the better the AI-generated results will be.</p>
           </div>
 
-          <h2>2. Generate Foundation & SEO Audit</h2>
-          <p>Once you've filled in the initial details, click the <strong>"Generate Foundation & SEO Audit"</strong> button. The AI will then:</p>
+          <h2>2. AI-Powered SEO Analysis</h2>
+          <p>After providing your business information, the AI will generate a baseline SEO audit and recommendations.</p>
           <ul>
-            <li>Analyze your business information.</li>
-            <li>Generate a detailed description of your business, your target customer, and key services.</li>
-            <li>Perform a baseline SEO audit of your website.</li>
+            <li><strong>SEO Audit:</strong> An analysis of your current SEO status and areas for improvement.</li>
+            <li><strong>Keyword Strategy:</strong> Recommended keywords and phrases for your business.</li>
+            <li><strong>Content Plan:</strong> A tailored content strategy to boost your online presence.</li>
           </ul>
 
-          <h2>3. Review and Refine</h2>
-          <p>The AI-generated content will appear in the form. This is your opportunity to review and edit the text to ensure it accurately reflects your brand. You can modify the following fields:</p>
+          <h2>3. Strategy Implementation</h2>
+          <p>Once the AI generates the strategy, you can review and implement the recommendations.</p>
           <ul>
-            <li><strong>About Your Business</strong></li>
-            <li><strong>Target Customer Persona</strong></li>
-            <li><strong>Key Services/Features</strong></li>
+            <li><strong>Export Options:</strong> Download your strategy in various formats (PDF, CSV, JSON).</li>
+            <li><strong>Actionable Steps:</strong> Clear, implementable steps for each recommendation.</li>
+            <li><strong>Progress Tracking:</strong> Monitor your implementation progress.</li>
           </ul>
 
-          <h2>4. Confirm & Generate SEO Strategy</h2>
-          <p>After you've reviewed and are happy with the AI-generated content, click the <strong>"Confirm & Generate SEO Strategy"</strong> button. This will trigger the final step, where the AI creates a complete, actionable SEO plan.</p>
-
-          <h2>5. Explore Your Actionable Plan</h2>
-          <p>The final output is a comprehensive dashboard that includes:</p>
+          <h2>4. Advanced Features</h2>
+          <p>The platform offers several advanced features to enhance your SEO efforts.</p>
           <ul>
-            <li><strong>Real-time SEO Analytics Dashboard:</strong> Key metrics and scores.</li>
-            <li><strong>Actionable Publishing Plan:</strong> A calendar with suggested content (blog posts, social media updates) for the next month.</li>
-            <li><strong>Expert Advice:</strong> Recommendations on publishing cadence, strategy duration, and key metrics to track.</li>
+            <li><strong>API Key Management:</strong> Configure API keys for different AI providers.</li>
+            <li><strong>Project Management:</strong> Save and manage multiple SEO projects.</li>
+            <li><strong>Sales Demo Hub:</strong> Pre-populated strategies for sales demonstrations.</li>
           </ul>
-          <p>You can click on individual events in the calendar to see more details and get specific content ideas.</p>
+
+          <h2>5. Troubleshooting</h2>
+          <p>If you encounter any issues, try these solutions:</p>
+          <ul>
+            <li><strong>Page Not Loading:</strong> Refresh the page or clear your browser cache.</li>
+            <li><strong>Export Not Working:</strong> Check your browser's popup blocker settings.</li>
+            <li><strong>AI Generation Stuck:</strong> Ensure your API keys are correctly configured.</li>
+          </ul>
+
           <div className="bg-green-50 border-l-4 border-green-500 p-4 my-4">
-            <p><strong>What to do next:</strong> Use the generated plan as a guide for your content creation and SEO efforts. The calendar provides a clear roadmap for the next few weeks.</p>
+            <p><strong>Need Help?</strong> Contact our support team at support@aiseoplatform.com</p>
           </div>
         </div>
       </div>
