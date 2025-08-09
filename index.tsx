@@ -7,14 +7,8 @@ import { ClerkProvider } from '@clerk/clerk-react';
 import { ClerkAuthContextProvider } from './context/ClerkAuthContext';
 import './index.css';
 
-interface ImportMetaEnv {
-  VITE_CLERK_PUBLISHABLE_KEY?: string;
-}
-
-interface ImportMeta {
-  readonly env: ImportMetaEnv;
-}
-
+// Vite provides type definitions for import.meta.env
+// We don't need to define ImportMeta interfaces manually
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 if (!PUBLISHABLE_KEY) {
