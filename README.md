@@ -1,75 +1,59 @@
+# AI SEO Automation Platform - Setup Instructions
 
-# AI-Powered SEO Automation Platform
+## Prerequisites
+1. Node.js (version 16 or higher)
+2. npm or yarn package manager
 
-A comprehensive, client-side platform to generate complete SEO strategies for Healthcare, EdTech, and AI businesses targeting the Indian market. The application leverages the Google Gemini API to produce keyword research, content plans, technical SEO recommendations, and social media post ideas.
+## Setup Instructions
 
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/your-repo/your-project)
+1. **Install dependencies:**
+   ```bash
+   cd aiseo
+   npm install
+   ```
 
-*(Replace the repository URL above after you've pushed this to your own GitHub account.)*
+2. **Environment Configuration:**
+   The application requires API keys for proper functionality:
+   
+   - **Clerk Authentication:** For user authentication
+   - **Google Gemini API:** For AI-powered SEO analysis and content generation
 
-## ✨ Features
+3. **Configure Environment Variables:**
+   Create a `.env.local` file in the `aiseo` directory with the following variables:
+   ```
+   VITE_CLERK_PUBLISHABLE_KEY=pk_test_...
+   GEMINI_API_KEY=your_gemini_api_key_here
+   ```
 
-- **Multi-Step SEO Workflow:** A guided 7-step process from business input to performance analysis.
-- **Dynamic AI Generation:** Leverages Google's `gemini-2.5-flash` model for fast, high-quality, and structured JSON output.
-- **AI-Powered Baseline Audit:** Instantly get an SEO score and actionable "quick wins" based on your initial business info.
-- **Actionable Publishing Calendar:** The AI generates a 4-week content calendar to turn your strategy into a concrete action plan.
-- **Dynamic Sales Demo Generation:** Sales teams can generate complete, real-data client reports on the fly. These demos are cached locally for offline presentation.
-- **AI Sales Coach:** During demo mode, a side panel provides AI-generated talking points to help salespeople effectively communicate the tool's value.
-- **Client-Side API Key Management:** Users provide their own Gemini API key, which is stored securely in their browser's local storage. The application is fully client-side with no backend dependency.
-- **Comprehensive Outputs:** Generates keyword strategies, content plans, social media posts, technical SEO checklists, and conversion rate optimization (CRO) plans.
-- **Data Export:** Allows users to download the generated strategy as Markdown or CSV files.
-- **Responsive Design:** A modern, clean UI built with Tailwind CSS that works across all devices.
+4. **Run the Development Server:**
+   ```bash
+   npm run dev
+   ```
 
-## 🛠️ Tech Stack
+## Getting API Keys
 
-- **Frontend:** React, TypeScript
-- **AI:** Google Gemini API (`@google/genai`)
-- **Styling:** Tailwind CSS
-- **Deployment:** Netlify (or any static host)
-- **Module Loading:** ES Modules with `importmap` and `esm.sh` for a build-less development environment.
+### Google Gemini API Key
+1. Go to [Google AI Studio](https://aistudio.google.com/)
+2. Sign in with your Google account
+3. Create a new API key
+4. Copy the key and add it to your `.env.local` file
 
-## 🚀 Getting Started (Local Development)
+### Clerk Publishable Key
+1. Go to [Clerk Dashboard](https://dashboard.clerk.dev/)
+2. Create a new application or select an existing one
+3. Copy the "Publishable Key" from the application settings
+4. Add it to your `.env.local` file as `VITE_CLERK_PUBLISHABLE_KEY`
 
-This project is set up to run directly in the browser without a build step, making local development very simple.
+## Common Issues and Solutions
 
-### Prerequisites
+### "Missing Publishable Key" Error
+This error occurs when the `VITE_CLERK_PUBLISHABLE_KEY` environment variable is not properly set. 
+Make sure:
+1. The `.env.local` file exists in the `aiseo` directory
+2. The file contains the `VITE_CLERK_PUBLISHABLE_KEY` variable with a valid key
+3. You're running the application from the `aiseo` directory
 
-- A modern web browser (e.g., Chrome, Firefox, Edge).
-- A code editor (e.g., [VS Code](https://code.visualstudio.com/)).
-- The [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) extension for VS Code is highly recommended to avoid potential CORS issues.
-
-### Installation & Running
-
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/your-repo/your-project.git
-    cd your-project
-    ```
-
-2.  **Run with Live Server:**
-    - Open the project folder in VS Code.
-    - Right-click the `index.html` file and select "Open with Live Server".
-    - Your browser will open the application at a local address (e.g., `http://127.0.0.1:5500`).
-
-## ⚙️ Usage
-
-The application is designed to be intuitive and guides you through the process.
-
-1.  **Use the Demo Hub:**
-    - Click the "🚀 Demo Hub" button in the header.
-    - Select "🔑 Manage API Keys" and enter your Google Gemini API key.
-    - To generate a new sales demo, select "+ Generate New Sales Demo...", enter a brand name and URL, and let the AI work. The demo will be saved for later.
-    - To view a saved demo, simply select it from the list.
-2.  **Live Mode:**
-    - Select "Live Mode" from the Demo Hub.
-    - Fill in your business info in Step 1 and click "Generate Foundation & SEO Audit".
-    - Review the AI-generated text and click "Confirm & Generate SEO Strategy".
-    - Progress through each step by clicking the "Generate" buttons that appear.
-3.  **Export Data:** Once all steps are complete, use the "Final Actions" section to export your generated data.
-
-## 🌐 Deployment
-
-This application can be deployed as a static site on any modern hosting platform. See the detailed [Netlify Deployment Guide](#) for step-by-step instructions.
-
-- **Build Command:** (leave empty)
-- **Publish Directory:** `.` (or the root directory)
+### API Key Issues
+If the application fails to generate content, check that:
+1. Your `GEMINI_API_KEY` is valid and active
+2. You have not exceeded your API quota

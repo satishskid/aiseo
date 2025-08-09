@@ -12,6 +12,8 @@ export default defineConfig(({ mode }) => {
         alias: {
           '@': path.resolve(__dirname, '.'),
         }
-      }
+      },
+      envDir: '.', // Explicitly set the env directory
+      envPrefix: 'VITE_' // Ensure VITE_ prefixed variables are loaded
     };
 });

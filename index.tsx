@@ -18,7 +18,10 @@ interface ImportMeta {
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 if (!PUBLISHABLE_KEY) {
-  throw new Error("Missing Publishable Key");
+  console.error("Missing Publishable Key. Please check your .env.local file.");
+  console.error("Expected variable: VITE_CLERK_PUBLISHABLE_KEY");
+  console.error("Current value:", PUBLISHABLE_KEY);
+  throw new Error("Missing Publishable Key. Please check the console for more details.");
 }
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
