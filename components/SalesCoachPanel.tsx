@@ -33,8 +33,11 @@ export const SalesCoachPanel: React.FC<SalesCoachPanelProps> = ({ insights, isOp
                 <div className="flex-grow overflow-y-auto pr-2 space-y-4">
                     {insights.map((insight, index) => (
                         <div key={index} className="p-3 bg-indigo-50/70 rounded-lg border-l-4 border-indigo-300">
-                            <p className="text-xs font-bold text-indigo-800 mb-1">{insight.step}</p>
-                            <p className="text-sm text-gray-700">{insight.point}</p>
+                            <p className="text-xs font-bold text-indigo-800 mb-1">{insight.title}</p>
+                            <p className="text-sm text-gray-700">{insight.description}</p>
+                            {insight.suggestedAction && (
+                                <p className="text-xs text-indigo-600 mt-1">💡 {insight.suggestedAction}</p>
+                            )}
                         </div>
                     ))}
                      {insights.length === 0 && <p className="text-sm text-gray-500 italic">No sales insights available for this demo.</p>}

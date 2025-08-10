@@ -30,11 +30,13 @@ export const PublishingCalendar: React.FC<PublishingCalendarProps> = ({ plan, is
     const emptyCells = Array(startDayOfWeek).fill(null);
     const calendarDays = Array.from({ length: 28 }, (_, i) => i + 1);
 
+    // Group events by date for display
     const eventsByDay = plan.calendar.reduce((acc, event) => {
-        if (!acc[event.day]) {
-            acc[event.day] = [];
+        const dayNumber = new Date(event.date).getDate();
+        if (!acc[dayNumber]) {
+            acc[dayNumber] = [];
         }
-        acc[event.day].push(event);
+        acc[dayNumber].push(event);
         return acc;
     }, {} as Record<number, CalendarEvent[]>);
 
@@ -42,21 +44,19 @@ export const PublishingCalendar: React.FC<PublishingCalendarProps> = ({ plan, is
         <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 mt-6 animate-contentAppear">
             <h3 className="text-xl font-bold text-gray-800 mb-4">Actionable Publishing Plan</h3>
             
-            {/* Expert Advice Section */}
+            {/* Publishing Strategy Summary */}
             <div className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bg-white p-4 rounded-lg shadow">
-                    <h4 className="font-bold text-gray-700">🗓️ Publishing Cadence</h4>
-                    <p className="text-sm text-gray-600 mt-1">{plan.expertAdvice.publishingCadence}</p>
+                    <h4 className="font-bold text-gray-700">🗓️ Content Types</h4>
+                    <p className="text-sm text-gray-600 mt-1">{plan.contentTypes.length} different content types planned</p>
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow">
-                    <h4 className="font-bold text-gray-700">⏳ Strategy Duration</h4>
-                    <p className="text-sm text-gray-600 mt-1">{plan.expertAdvice.strategyDuration}</p>
+                    <h4 className="font-bold text-gray-700">📊 Distribution Channels</h4>
+                    <p className="text-sm text-gray-600 mt-1">{plan.distributionChannels.length} channels configured</p>
                 </div>
                  <div className="bg-white p-4 rounded-lg shadow">
-                    <h4 className="font-bold text-gray-700">📈 Metrics to Track</h4>
-                    <ul className="text-sm text-gray-600 mt-1 list-disc list-inside">
-                        {plan.expertAdvice.metricsToTrack.map((metric, i) => <li key={i}>{metric}</li>)}
-                    </ul>
+                    <h4 className="font-bold text-gray-700">📈 Timeline Items</h4>
+                    <p className="text-sm text-gray-600 mt-1">{plan.timeline.length} weeks planned</p>
                 </div>
             </div>
 

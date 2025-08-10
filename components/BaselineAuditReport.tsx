@@ -35,14 +35,17 @@ export const BaselineAuditReport: React.FC<BaselineAuditReportProps> = ({ audit 
         </div>
         <div className="md:col-span-2 bg-white p-6 rounded-xl shadow-md">
           <h4 className="font-bold text-gray-700 mb-2">Audit Summary</h4>
-          <p className="text-gray-600 text-sm">{audit.summary}</p>
+          <p className="text-gray-600 text-sm">
+            Overall SEO Score: {audit.overallScore}/100 - Technical: {audit.technicalScore}, 
+            Content: {audit.contentScore}, UX: {audit.userExperienceScore}
+          </p>
         </div>
       </div>
       <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <AuditSection title="📝 Content Observations" items={audit.contentObservations} />
-        <AuditSection title="🔧 Technical Observations" items={audit.technicalObservations} />
-        <AuditSection title="📱 Social Presence" items={audit.socialObservations} />
-        <AuditSection title="🚀 Quick Wins" items={audit.quickWins} />
+        <AuditSection title="🚨 Issues Found" items={audit.issues.map(issue => issue.issue)} />
+        <AuditSection title="🎯 Opportunities" items={audit.opportunities.map(opp => opp.opportunity)} />
+        <AuditSection title="📋 Recommendations" items={audit.recommendations.map(rec => rec.action)} />
+        <AuditSection title="🏆 Competitor Analysis" items={audit.competitorAnalysis.map(comp => `${comp.competitor}: ${comp.strengths[0] || 'No data'}`)} />
       </div>
     </div>
   );

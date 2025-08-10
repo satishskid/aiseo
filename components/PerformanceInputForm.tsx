@@ -14,6 +14,15 @@ const linkClasses = "text-sm text-brand-primary-start hover:underline font-semib
 
 export const PerformanceInputForm: React.FC<PerformanceInputFormProps> = ({ isLoading, onSubmit }) => {
     const [formData, setFormData] = useState<PerformanceInputs>({
+        websiteUrl: '',
+        currentTraffic: 0,
+        conversionRate: 0,
+        averageOrderValue: 0,
+        topKeywords: [],
+        competitorUrls: [],
+        goals: [],
+        timeframe: '',
+        budget: 0,
         gscQueries: '',
         gaTraffic: '',
         metaInsights: '',

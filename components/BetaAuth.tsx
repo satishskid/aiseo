@@ -1,5 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { BETA_CONFIG, validateBetaCredentials, isBetaPeriodActive } from '../config/betaConfig';
+
+// Mock beta config since the file doesn't exist
+const BETA_CONFIG = {
+  enabled: false,
+  credentials: { username: 'demo', password: 'demo' },
+  sessionDuration: 24 * 60 * 60 * 1000, // 24 hours
+  users: [
+    { username: 'demo', password: 'demo', name: 'Demo User', role: 'admin' }
+  ],
+  showFeedbackButton: true,
+  feedbackEmail: 'feedback@example.com'
+};
+
+const validateBetaCredentials = (username: string, password: string) => {
+  return BETA_CONFIG.users.find(user => user.username === username && user.password === password) || false;
+};
+
+const isBetaPeriodActive = () => BETA_CONFIG.enabled;
 
 interface BetaAuthProps {
   children: React.ReactNode;

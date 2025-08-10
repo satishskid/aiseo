@@ -64,34 +64,27 @@ export const ActionableConversionPlan: React.FC<ActionableConversionPlanProps> =
         </p>
       </div>
 
-      {conversionPlan.goals && conversionPlan.goals.length > 0 && (
+      {conversionPlan.conversionGoals && conversionPlan.conversionGoals.length > 0 && (
         <div className="bg-white rounded-xl shadow-md p-6">
           <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
             <span className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs mr-2">1</span>
             Conversion Goals
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {conversionPlan.goals.map((goal, index) => (
+            {conversionPlan.conversionGoals.map((goal, index) => (
               <div key={index} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                 <div className="flex justify-between items-start">
                   <div>
-                    <h5 className="font-medium text-gray-800">{goal.name}</h5>
-                    <p className="text-gray-600 text-sm mt-1">{goal.description}</p>
+                    <h5 className="font-medium text-gray-800">{goal.goal}</h5>
+                    <p className="text-gray-600 text-sm mt-1">Current: {goal.currentRate} → Target: {goal.targetRate}</p>
                   </div>
-                  <span className={`px-2 py-1 text-xs rounded-full ${
-                    goal.priority === 'high' ? 'bg-red-100 text-red-800' :
-                    goal.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-green-100 text-green-800'
-                  }`}>
-                    {goal.priority} priority
+                  <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
+                    {goal.timeline}
                   </span>
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
-                    KPI: {goal.kpi}
-                  </span>
-                  <span className="px-2 py-1 text-xs rounded-full bg-indigo-100 text-indigo-800">
-                    Target: {goal.target}
+                  <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">
+                    Value: {goal.value}
                   </span>
                 </div>
               </div>
@@ -118,14 +111,15 @@ export const ActionableConversionPlan: React.FC<ActionableConversionPlanProps> =
                   )}
                 </div>
                 <div className="flex-1 pb-4">
-                  <h5 className="font-medium text-gray-800">{step.name}</h5>
-                  <p className="text-gray-600 text-sm mt-1">{step.description}</p>
+                  <h5 className="font-medium text-gray-800">{step.stage}</h5>
+                  <p className="text-gray-600 text-sm mt-1">{step.userIntent}</p>
                   <div className="mt-2 flex flex-wrap gap-2">
-                    {step.channels && step.channels.map((channel, chanIndex) => (
-                      <span key={chanIndex} className="px-2 py-1 text-xs rounded-full bg-teal-100 text-teal-800">
-                        {channel}
-                      </span>
-                    ))}
+                    <span className="px-2 py-1 text-xs rounded-full bg-teal-100 text-teal-800">
+                      {step.touchpoint}
+                    </span>
+                    <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
+                      {step.optimization}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -145,34 +139,26 @@ export const ActionableConversionPlan: React.FC<ActionableConversionPlanProps> =
               <div key={index} className="border-l-4 border-orange-500 pl-4 py-2">
                 <div className="flex justify-between items-start">
                   <div>
-                    <h5 className="font-medium text-gray-800">{tactic.title}</h5>
+                    <h5 className="font-medium text-gray-800">{tactic.tactic}</h5>
                     <p className="text-gray-600 text-sm mt-1">{tactic.description}</p>
                     <div className="mt-2 flex flex-wrap gap-2">
                       <span className="px-2 py-1 text-xs rounded-full bg-amber-100 text-amber-800">
-                        Element: {tactic.element}
+                        Implementation: {tactic.implementation}
                       </span>
-                      <span className={`px-2 py-1 text-xs rounded-full ${
-                        tactic.impact === 'high' ? 'bg-red-100 text-red-800' :
-                        tactic.impact === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-green-100 text-green-800'
-                      }`}>
-                        Impact: {tactic.impact}
+                      <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">
+                        Impact: {tactic.expectedImpact}
                       </span>
                       <span className="px-2 py-1 text-xs rounded-full bg-purple-100 text-purple-800">
                         Effort: {tactic.effort}
                       </span>
                     </div>
                   </div>
-                  {tactic.example && (
-                    <CopyButton text={tactic.example} label={`tactic-${index}`} />
-                  )}
+                  <CopyButton text={tactic.implementation} label={`tactic-${index}`} />
                 </div>
-                {tactic.example && (
-                  <div className="mt-2 p-3 bg-gray-50 rounded-lg">
-                    <h6 className="font-medium text-gray-700 text-sm">Example:</h6>
-                    <p className="text-gray-600 text-sm mt-1">{tactic.example}</p>
-                  </div>
-                )}
+                <div className="mt-2 p-3 bg-gray-50 rounded-lg">
+                  <h6 className="font-medium text-gray-700 text-sm">Implementation:</h6>
+                  <p className="text-gray-600 text-sm mt-1">{tactic.implementation}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -190,42 +176,22 @@ export const ActionableConversionPlan: React.FC<ActionableConversionPlanProps> =
               <div key={index} className="border border-gray-200 rounded-lg p-4">
                 <div className="flex justify-between items-start">
                   <div>
-                    <h5 className="font-medium text-gray-800">{test.hypothesis}</h5>
-                    <p className="text-gray-600 text-sm mt-1">{test.description}</p>
+                    <h5 className="font-medium text-gray-800">{test.test}</h5>
+                    <p className="text-gray-600 text-sm mt-1">{test.hypothesis}</p>
                   </div>
-                  <span className={`px-2 py-1 text-xs rounded-full ${
-                    test.priority === 'high' ? 'bg-red-100 text-red-800' :
-                    test.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-green-100 text-green-800'
-                  }`}>
-                    {test.priority} priority
+                  <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
+                    {test.duration}
                   </span>
                 </div>
-                <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="bg-blue-50 p-3 rounded">
-                    <h6 className="font-medium text-blue-800 text-sm">Variation A</h6>
-                    <p className="text-blue-600 text-xs mt-1">{test.variationA}</p>
+                    <h6 className="font-medium text-blue-800 text-sm">Success Criteria</h6>
+                    <p className="text-blue-600 text-xs mt-1">{test.successCriteria}</p>
                   </div>
                   <div className="bg-purple-50 p-3 rounded">
-                    <h6 className="font-medium text-purple-800 text-sm">Variation B</h6>
-                    <p className="text-purple-600 text-xs mt-1">{test.variationB}</p>
+                    <h6 className="font-medium text-purple-800 text-sm">Metrics</h6>
+                    <p className="text-purple-600 text-xs mt-1">{test.metrics.join(', ')}</p>
                   </div>
-                  <div className="bg-gray-50 p-3 rounded">
-                    <h6 className="font-medium text-gray-800 text-sm">Success Metric</h6>
-                    <p className="text-gray-600 text-xs mt-1">{test.successMetric}</p>
-                  </div>
-                </div>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {test.duration && (
-                    <span className="px-2 py-1 text-xs rounded-full bg-indigo-100 text-indigo-800">
-                      Duration: {test.duration}
-                    </span>
-                  )}
-                  {test.trafficAllocation && (
-                    <span className="px-2 py-1 text-xs rounded-full bg-teal-100 text-teal-800">
-                      Traffic: {test.trafficAllocation}
-                    </span>
-                  )}
                 </div>
               </div>
             ))}
@@ -242,18 +208,16 @@ export const ActionableConversionPlan: React.FC<ActionableConversionPlanProps> =
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {conversionPlan.kpis.map((kpi, index) => (
               <div key={index} className="border border-gray-200 rounded-lg p-4 text-center">
-                <h5 className="font-medium text-gray-800">{kpi.name}</h5>
-                <div className="mt-2 text-2xl font-bold text-teal-600">{kpi.currentValue}</div>
+                <h5 className="font-medium text-gray-800">{kpi.metric}</h5>
+                <div className="mt-2 text-2xl font-bold text-teal-600">{kpi.current}</div>
                 <div className="mt-1 text-sm text-gray-600">Current</div>
-                <div className="mt-2 text-lg font-semibold text-green-600">{kpi.targetValue}</div>
+                <div className="mt-2 text-lg font-semibold text-green-600">{kpi.target}</div>
                 <div className="text-sm text-gray-600">Target</div>
-                {kpi.improvement && (
-                  <div className="mt-2">
-                    <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">
-                      +{kpi.improvement} improvement
-                    </span>
-                  </div>
-                )}
+                <div className="mt-2">
+                  <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
+                    {kpi.measurement}
+                  </span>
+                </div>
               </div>
             ))}
           </div>

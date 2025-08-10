@@ -12,8 +12,20 @@ interface ApiManagerModalProps {
 export const ApiManagerModal: React.FC<ApiManagerModalProps> = ({ isOpen, onClose }) => {
   const { apiKeys, setApiKeys } = useApiKey();
   const [localKeys, setLocalKeys] = useState<ApiKeys>(apiKeys);
-  const [validating, setValidating] = useState<Record<ApiProviderId, boolean>>({});
-  const [validationResults, setValidationResults] = useState<Record<ApiProviderId, boolean | null>>({});
+  const [validating, setValidating] = useState<Record<ApiProviderId, boolean>>({
+    gemini: false,
+    openai: false,
+    claude: false,
+    groq: false,
+    openrouter: false
+  });
+  const [validationResults, setValidationResults] = useState<Record<ApiProviderId, boolean | null>>({
+    gemini: null,
+    openai: null,
+    claude: null,
+    groq: null,
+    openrouter: null
+  });
 
   const handleSave = () => {
     setApiKeys(localKeys);

@@ -24,13 +24,13 @@ export const CalendarEventModal: React.FC<CalendarEventModalProps> = ({ event, o
                     </div>
                     <div>
                         <h2 className="text-xl font-bold text-gray-800">{event.title}</h2>
-                        <p className="text-sm text-gray-500">Scheduled for Day {event.day}</p>
+                        <p className="text-sm text-gray-500">Scheduled for {event.date} at {event.time}</p>
                     </div>
                 </div>
                 
                 <div className="my-6 p-4 bg-gray-50 rounded-lg border max-h-80 overflow-y-auto">
                     <h3 className="font-bold text-gray-700 mb-2">Details:</h3>
-                    <p className="text-sm text-gray-800 whitespace-pre-wrap">{event.details}</p>
+                    <p className="text-sm text-gray-800 whitespace-pre-wrap">{event.description}</p>
                 </div>
 
                 <div className="flex justify-end">
