@@ -66,6 +66,36 @@ code {
   color: #374151; /* gray-700 */
 }
 
+/* Ensure all text has proper contrast */
+.text-white {
+  color: #ffffff;
+}
+
+/* Fix any potential contrast issues with light text on light backgrounds */
+.text-gray-500, .text-gray-400, .text-gray-300 {
+  color: #4b5563; /* Use a darker gray for better visibility (gray-600) */
+}
+
+/* Specific fix for text that might appear white on white backgrounds */
+.bg-white .text-white,
+.bg-gray-50 .text-white,
+.bg-gray-100 .text-white {
+  color: #374151; /* gray-700 */
+}
+
+/* Ensure proper contrast for all text elements */
+.text-gray-600 {
+  color: #4b5563; /* gray-600 for better visibility */
+}
+
+.text-gray-700 {
+  color: #374151; /* gray-700 */
+}
+
+.text-gray-800 {
+  color: #1f2937; /* gray-800 */
+}
+
 /* Print styles */
 @media print {
   body {
