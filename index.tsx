@@ -5,7 +5,7 @@ import { ApiKeyProvider } from './context/ApiKeyContext';
 import { FirebaseProvider } from './context/FirebaseContext';
 import { ClerkProvider } from '@clerk/clerk-react';
 import { ClerkAuthContextProvider } from './context/ClerkAuthContext';
-import './index.css';
+import './src/index.css';
 
 // Vite provides type definitions for import.meta.env
 // We don't need to define ImportMeta interfaces manually
