@@ -16,6 +16,7 @@ export default defineConfig(({ mode }) => {
         }
       },
       envDir: '.', // Explicitly set the env directory
-      envPrefix: 'VITE_' // Ensure VITE_ prefixed variables are loaded
+      envPrefix: 'VITE_', // Ensure VITE_ prefixed variables are loaded
+
     };
 });

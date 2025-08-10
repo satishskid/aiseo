@@ -3,6 +3,7 @@ export default {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
+    "./components/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
@@ -31,10 +32,10 @@ export default {
         },
       },
       animation: {
-        float: 'float 20s ease-in-out infinite',
+        float: 'float 6s ease-in-out infinite',
         contentAppear: 'contentAppear 0.6s ease-out',
         spin: 'spin 1s linear infinite',
-      },
+      }
     },
   },
   plugins: [],
