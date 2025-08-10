@@ -34,7 +34,7 @@ export const OutputSection: React.FC<OutputSectionProps> = ({ title, isLoading, 
             ) : (
                 <div className={`mt-4 ${content ? 'animate-contentAppear' : ''}`}>
                     {content ? (
-                         <pre className="bg-white p-6 rounded-xl border-l-[5px] border-brand-secondary-start mt-5 whitespace-pre-wrap font-mono text-sm max-h-[400px] overflow-y-auto shadow-lg">{content}</pre>
+                         <pre className="bg-white p-6 rounded-xl border-l-[5px] border-brand-secondary-start mt-5 whitespace-pre-wrap font-mono text-sm max-h-[400px] overflow-y-auto shadow-lg text-gray-800">{content}</pre>
                     ) : (
                         <p className="text-gray-500 italic p-4">{placeholder}</p>
                     )}

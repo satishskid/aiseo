@@ -17,6 +17,9 @@ html, body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Ensure default text color is visible on white backgrounds */
+  color: #374151; /* gray-700 */
+  background-color: #f9fafb; /* gray-50 */
 }
 
 /* Custom scrollbar */
@@ -54,9 +57,19 @@ html, body {
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
 }
 
+/* Ensure text is visible in all common elements */
+pre {
+  color: #374151; /* gray-700 */
+}
+
+code {
+  color: #374151; /* gray-700 */
+}
+
 /* Print styles */
 @media print {
   body {
     background: white !important;
+    color: black !important;
   }
 }
