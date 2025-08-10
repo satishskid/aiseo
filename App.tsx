@@ -15,8 +15,7 @@ import { ProjectManager } from './components/ProjectManager';
 import { UserGuidance, Notification } from './components/UserGuidance';
 import { UserManual } from './components/UserManual';
 import { useApiKey } from './context/ApiKeyContext';
-import { useClerkAuth } from './context/ClerkAuthContext';
-import { useFirebase } from './context/FirebaseContext';
+import { useDemoAuth } from './context/DemoAuthContext';
 import { GeminiService, AIService } from './services/aiService';
 import { SOCIAL_PLATFORMS } from './constants';
 import type { 
@@ -37,8 +36,7 @@ import type {
 
 const App: React.FC = () => {
   const { apiKeys } = useApiKey();
-  const { userId, user: clerkUser, isSignedIn, isLoaded, signOut } = useClerkAuth();
-  const { user: firebaseUser, isAuthenticated, isEmailVerified, loading: authLoading } = useFirebase();
+  const { currentUser, logout } = useDemoAuth();
   const [aiService, setAiService] = useState<AIService | null>(null);
 
   // --- State for Data ---
@@ -529,7 +527,8 @@ const App: React.FC = () => {
 
   const handleSignOut = async () => {
     try {
-      await signOut();
+      logout();
+      setNotification({ message: 'Successfully signed out', type: 'success' });
     } catch (error) {
       console.error('Sign out error:', error);
       setNotification({ message: 'Failed to sign out', type: 'warning' });
@@ -537,7 +536,10 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><pattern id='grain' patternUnits='userSpaceOnUse' width='100' height='100'><circle cx='20' cy='20' r='1' fill='%23e2e8f0' opacity='0.4'/><circle cx='80' cy='80' r='1' fill='%23cbd5e1' opacity='0.3'/><circle cx='40' cy='60' r='0.5' fill='%23f1f5f9' opacity='0.6'/></pattern></defs><rect width='100' height='100' fill='url(%23grain)'/></svg>')] opacity-30"></div>
+      
       {/* Header */}
       <Header 
         onManageApiKeys={() => setShowApiManager(true)}
@@ -551,12 +553,33 @@ const App: React.FC = () => {
       />
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">AI SEO Automation Platform</h1>
-          <p className="text-gray-600 mb-6">
-            Generate comprehensive SEO strategies powered by AI
-          </p>
+      <main className="relative z-10 container mx-auto px-4 py-8 max-w-7xl">
+        <div className="glass-effect rounded-3xl shadow-depth p-8 mb-8 border border-white/50">
+          <div className="text-center mb-8">
+            <div className="mb-6">
+              <h1 className="text-5xl font-extrabold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent mb-6 leading-tight">
+                AI SEO Automation Platform
+              </h1>
+              {currentUser && (
+                <div className="inline-flex items-center gap-4 bg-gradient-to-r from-brand-primary-start/15 to-brand-primary-end/15 border-2 border-brand-primary-start/30 rounded-2xl px-8 py-4 mb-6 shadow-depth">
+                  <div className="w-10 h-10 bg-gradient-to-r from-brand-primary-start to-brand-primary-end rounded-full flex items-center justify-center text-white font-bold text-lg">
+                    {currentUser.firstName[0]}{currentUser.lastName[0]}
+                  </div>
+                  <div className="text-left">
+                    <div className="font-bold text-gray-900 text-lg">
+                      Welcome, {currentUser.firstName} {currentUser.lastName}
+                    </div>
+                    <div className="text-base text-gray-700 font-medium">
+                      {currentUser.company} • {currentUser.industry}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+            <p className="text-xl text-gray-900 max-w-3xl mx-auto leading-relaxed font-semibold">
+              Generate comprehensive SEO strategies powered by advanced AI algorithms
+            </p>
+          </div>
           
           {/* Business Input Form */}
           <BusinessInputForm 
@@ -586,7 +609,9 @@ const App: React.FC = () => {
                   <AnalyticsDashboard data={mockAnalyticsData} />
                 </div>
               ) : (
-                <p className="text-gray-500">Complete the business information to generate your SEO audit.</p>
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 text-center">
+                  <p className="text-blue-900 font-semibold text-lg">Complete the business information to generate your SEO audit.</p>
+                </div>
               )}
             </Step>
             
@@ -607,7 +632,7 @@ const App: React.FC = () => {
                         {keywordStrategy.primaryKeywords.map((keyword, index) => (
                           <li key={index} className="bg-blue-50 p-3 rounded-lg">
                             <div className="font-medium">{keyword}</div>
-                            <div className="text-sm text-gray-600">
+                            <div className="text-sm text-gray-800 font-medium">
                               Volume: {keywordStrategy.searchVolume[keyword] || 'N/A'} | Difficulty: {keywordStrategy.keywordDifficulty[keyword] || 'N/A'}
                             </div>
                           </li>
@@ -620,7 +645,7 @@ const App: React.FC = () => {
                         {keywordStrategy.longTailKeywords.map((keyword, index) => (
                           <li key={index} className="bg-green-50 p-3 rounded-lg">
                             <div className="font-medium">{keyword}</div>
-                            <div className="text-sm text-gray-600">
+                            <div className="text-sm text-gray-800 font-medium">
                               Volume: {keywordStrategy.searchVolume[keyword] || 'N/A'} | Difficulty: {keywordStrategy.keywordDifficulty[keyword] || 'N/A'}
                             </div>
                           </li>
@@ -633,7 +658,7 @@ const App: React.FC = () => {
                         {keywordStrategy.locationKeywords.map((keyword, index) => (
                           <li key={index} className="bg-purple-50 p-3 rounded-lg">
                             <div className="font-medium">{keyword}</div>
-                            <div className="text-sm text-gray-600">
+                            <div className="text-sm text-gray-800 font-medium">
                               Volume: {keywordStrategy.searchVolume[keyword] || 'N/A'} | Difficulty: {keywordStrategy.keywordDifficulty[keyword] || 'N/A'}
                             </div>
                           </li>
@@ -643,7 +668,9 @@ const App: React.FC = () => {
                   </div>
                 </div>
               ) : (
-                <p className="text-gray-500">Complete the SEO audit to generate your keyword strategy.</p>
+                <div className="bg-orange-50 border border-orange-200 rounded-xl p-6 text-center">
+                  <p className="text-orange-900 font-semibold text-lg">Complete the SEO audit to generate your keyword strategy.</p>
+                </div>
               )}
             </Step>
             
@@ -663,8 +690,8 @@ const App: React.FC = () => {
                       {contentPlan.blogPosts.map((post, index) => (
                         <div key={index} className="bg-gray-50 p-4 rounded-lg">
                           <h4 className="font-medium">{post.title}</h4>
-                          <p className="text-sm text-gray-600 mt-2">{post.outline.join(', ')}</p>
-                          <div className="mt-2 text-xs text-gray-500">
+                          <p className="text-sm text-gray-800 mt-2">{post.outline.join(', ')}</p>
+                          <div className="mt-2 text-xs text-gray-700 font-medium">
                             Target: {post.targetKeywords.join(', ')}
                           </div>
                         </div>
@@ -691,7 +718,9 @@ const App: React.FC = () => {
                   </div>
                 </div>
               ) : (
-                <p className="text-gray-500">Complete the keyword strategy to generate your content plan.</p>
+                <div className="bg-orange-50 border border-orange-200 rounded-xl p-6 text-center">
+                  <p className="text-orange-900 font-semibold text-lg">Complete the keyword strategy to generate your content plan.</p>
+                </div>
               )}
             </Step>
             
@@ -715,7 +744,9 @@ const App: React.FC = () => {
                   />
                 </div>
               ) : (
-                <p className="text-gray-500">Complete the content plan to generate your publishing calendar.</p>
+                <div className="bg-purple-50 border border-purple-200 rounded-xl p-6 text-center">
+                  <p className="text-purple-900 font-semibold text-lg">Complete the content plan to generate your publishing calendar.</p>
+                </div>
               )}
             </Step>
             
@@ -732,7 +763,9 @@ const App: React.FC = () => {
                   <ActionableTechnicalSeo data={technicalSeoPlan} />
                 </div>
               ) : (
-                <p className="text-gray-500">Complete the publishing calendar to generate technical SEO recommendations.</p>
+                <div className="bg-green-50 border border-green-200 rounded-xl p-6 text-center">
+                  <p className="text-green-900 font-semibold text-lg">Complete the publishing calendar to generate technical SEO recommendations.</p>
+                </div>
               )}
             </Step>
             
@@ -749,7 +782,9 @@ const App: React.FC = () => {
                   <ActionableConversionPlan data={conversionPlan} />
                 </div>
               ) : (
-                <p className="text-gray-500">Complete the technical SEO recommendations to generate conversion optimization plan.</p>
+                <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-6 text-center">
+                  <p className="text-indigo-900 font-semibold text-lg">Complete the technical SEO recommendations to generate conversion optimization plan.</p>
+                </div>
               )}
             </Step>
             
@@ -786,7 +821,9 @@ const App: React.FC = () => {
                   </div>
                 </div>
               ) : (
-                <p className="text-gray-500">Complete the conversion optimization plan to generate performance analysis.</p>
+                <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 text-center">
+                  <p className="text-yellow-900 font-semibold text-lg">Complete the conversion optimization plan to generate performance analysis.</p>
+                </div>
               )}
             </Step>
           </div>

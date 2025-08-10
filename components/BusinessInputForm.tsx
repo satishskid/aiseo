@@ -25,9 +25,10 @@ interface BusinessInputFormProps {
     currentProject: any; // Add this prop
 }
 
-const inputClasses = "w-full py-[15px] px-5 border-2 border-gray-200 rounded-xl text-[15px] transition-all duration-300 bg-gray-50 focus:outline-none focus:border-brand-primary-start focus:bg-white focus:shadow-[0_0_0_3px_rgba(102,126,234,0.1)] focus:-translate-y-px disabled:bg-gray-200 disabled:cursor-not-allowed";
-const labelClasses = "block mb-2.5 font-bold text-gray-600 text-[15px]";
-const textareaClasses = `${inputClasses} resize-y min-h-[140px]`;
+const inputClasses = "w-full py-4 px-5 border-2 border-gray-300 rounded-xl text-base font-medium transition-all duration-300 bg-white hover:bg-gray-50 focus:outline-none focus:border-brand-primary-start focus:bg-white focus:shadow-[0_0_0_3px_rgba(102,126,234,0.15)] focus:scale-[1.01] disabled:bg-gray-100 disabled:cursor-not-allowed shadow-elegant text-gray-900";
+const labelClasses = "block mb-3 font-bold text-gray-900 text-lg flex items-center gap-2";
+const textareaClasses = `${inputClasses} resize-y min-h-[120px] leading-relaxed text-gray-900`;
+const sectionClasses = "bg-white rounded-2xl p-8 md:p-10 shadow-depth border border-gray-200 hover:shadow-xl transition-all duration-300 mb-8";
 
 export const BusinessInputForm: React.FC<BusinessInputFormProps> = ({ 
     isLoadingFoundation,
@@ -131,8 +132,11 @@ export const BusinessInputForm: React.FC<BusinessInputFormProps> = ({
     return (
         <form className="space-y-6 relative">
              {isDemoMode && (
-                <div className="absolute inset-0 bg-white/50 backdrop-blur-sm z-10 flex items-center justify-center rounded-xl">
-                    <p className="text-lg font-bold text-brand-primary-start bg-white/80 p-4 rounded-lg shadow-lg">Demo Mode is Active</p>
+                <div className="absolute inset-0 bg-white/70 backdrop-blur-sm z-10 flex items-center justify-center rounded-xl">
+                    <div className="text-center bg-white/95 p-6 rounded-2xl shadow-depth border border-brand-primary-start/30">
+                        <p className="text-xl font-bold text-brand-primary-start mb-2">🎭 Demo Mode Active</p>
+                        <p className="text-gray-700">Experiencing the platform with sample data</p>
+                    </div>
                 </div>
             )}
             
@@ -141,14 +145,14 @@ export const BusinessInputForm: React.FC<BusinessInputFormProps> = ({
                 <div className="bg-white rounded-2xl shadow-lg p-8 mb-8 border border-gray-200">
                     <div className="flex items-center justify-between mb-6">
                         <div>
-                            <h2 className="text-2xl font-bold text-gray-800">Business Information</h2>
-                            <p className="text-gray-600 mt-1">Tell us about your business to generate your SEO foundation</p>
+                            <h2 className="text-3xl font-bold text-gray-900 mb-2">Business Information</h2>
+                            <p className="text-gray-700 text-lg">Tell us about your business to generate your SEO foundation</p>
                         </div>
                         <button
                             onClick={() => setShowStructuredDataInput(true)}
-                            className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:shadow-lg transition-all duration-200 flex items-center"
+                            className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-xl font-bold hover:shadow-lg transition-all duration-200 flex items-center text-base"
                         >
-                            <span className="mr-2">📁</span>
+                            <span className="mr-2 text-lg">📁</span>
                             Import Business Data
                         </button>
                     </div>
@@ -166,7 +170,7 @@ export const BusinessInputForm: React.FC<BusinessInputFormProps> = ({
                                             ×
                                         </button>
                                     </div>
-                                    <p className="text-gray-600 mt-1">Fill in your business details below to auto-populate the form</p>
+                                    <p className="text-gray-700 mt-1 font-medium">Fill in your business details below to auto-populate the form</p>
                                 </div>
                                 <div className="p-6">
                                     <StructuredDataInput
@@ -195,29 +199,44 @@ export const BusinessInputForm: React.FC<BusinessInputFormProps> = ({
             {/* --- Stage 1: Initial Inputs --- */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label htmlFor="name" className={labelClasses}>Brand/Business Name *</label>
+                    <label htmlFor="name" className={labelClasses}>
+                        <span className="text-2xl">🏢</span>
+                        Brand/Business Name *
+                    </label>
                     <input type="text" id="name" name="name" value={formData.name} onChange={handleInputChange} placeholder="e.g., Skids Health, Greybrain.ai" required className={inputClasses} disabled={isFoundationGenerated || isDemoMode}/>
                 </div>
                 <div>
-                    <label htmlFor="website" className={labelClasses}>Website URL</label>
+                    <label htmlFor="website" className={labelClasses}>
+                        <span className="text-2xl">🌐</span>
+                        Website URL
+                    </label>
                     <input type="url" id="website" name="website" value={formData.website} onChange={handleInputChange} placeholder="https://skids.health" className={inputClasses} disabled={isFoundationGenerated || isDemoMode}/>
                 </div>
                  <div>
-                    <label htmlFor="businessType" className={labelClasses}>Industry Focus *</label>
+                    <label htmlFor="businessType" className={labelClasses}>
+                        <span className="text-2xl">🏭</span>
+                        Industry Focus *
+                    </label>
                     <select id="businessType" name="businessType" value={formData.businessType} onChange={handleInputChange} required className={inputClasses} disabled={isFoundationGenerated || isDemoMode}>
                         <option value="">Select Industry</option>
                         {INDUSTRY_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                     </select>
                 </div>
                 <div>
-                    <label htmlFor="serviceType" className={labelClasses}>Service Model *</label>
+                    <label htmlFor="serviceType" className={labelClasses}>
+                        <span className="text-2xl">⚙️</span>
+                        Service Model *
+                    </label>
                     <select id="serviceType" name="serviceType" value={formData.serviceType} onChange={handleInputChange} required className={inputClasses} disabled={isFoundationGenerated || isDemoMode}>
                         <option value="">Select Service Type</option>
                         {SERVICE_MODEL_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                     </select>
                 </div>
                  <div className="md:col-span-2">
-                    <label className={labelClasses}>Social Media Handles (Optional)</label>
+                    <label className={labelClasses}>
+                        <span className="text-2xl">📱</span>
+                        Social Media Handles (Optional)
+                    </label>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <input type="text" name="linkedinHandle" value={formData.linkedinHandle} onChange={handleInputChange} placeholder="LinkedIn Handle" className={inputClasses} disabled={isFoundationGenerated || isDemoMode} />
                         <input type="text" name="twitterHandle" value={formData.twitterHandle} onChange={handleInputChange} placeholder="X / Twitter Handle" className={inputClasses} disabled={isFoundationGenerated || isDemoMode} />
@@ -226,7 +245,10 @@ export const BusinessInputForm: React.FC<BusinessInputFormProps> = ({
                 </div>
             </div>
              <div>
-                <label htmlFor="targetLocations" className={labelClasses}>Target Locations *</label>
+                <label htmlFor="targetLocations" className={labelClasses}>
+                    <span className="text-2xl">📍</span>
+                    Target Locations *
+                </label>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <select id="locationScope" name="locationScope" value={formData.locationScope} onChange={handleInputChange} className={inputClasses} disabled={isFoundationGenerated || isDemoMode}>
                         {LOCATION_SCOPE_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
@@ -237,12 +259,15 @@ export const BusinessInputForm: React.FC<BusinessInputFormProps> = ({
                 </div>
             </div>
             <div>
-                <label className={labelClasses}>Primary Target Cities (Select all applicable)</label>
+                <label className={labelClasses}>
+                    <span className="text-2xl">🏙️</span>
+                    Primary Target Cities (Select all applicable)
+                </label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
                     {CITY_OPTIONS.map(city => (
-                        <div key={city} className="flex items-center">
-                            <input type="checkbox" id={city.toLowerCase()} value={city} checked={formData.selectedCities.includes(city)} onChange={handleCityChange} className="w-5 h-5 scale-125 text-brand-primary-start bg-gray-100 border-gray-300 rounded focus:ring-brand-primary-start disabled:cursor-not-allowed" disabled={isFoundationGenerated || isDemoMode}/>
-                            <label htmlFor={city.toLowerCase()} className="ml-2 text-sm font-medium text-gray-700">{city}</label>
+                        <div key={city} className="flex items-center bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors">
+                            <input type="checkbox" id={city.toLowerCase()} value={city} checked={formData.selectedCities.includes(city)} onChange={handleCityChange} className="w-5 h-5 scale-125 text-brand-primary-start bg-gray-100 border-gray-300 rounded focus:ring-brand-primary-start disabled:cursor-not-allowed mr-3" disabled={isFoundationGenerated || isDemoMode}/>
+                            <label htmlFor={city.toLowerCase()} className="text-sm font-semibold text-gray-900 cursor-pointer">{city}</label>
                         </div>
                     ))}
                 </div>
@@ -254,39 +279,91 @@ export const BusinessInputForm: React.FC<BusinessInputFormProps> = ({
 
             {/* --- Stage 2: AI-Generated Content (Review & Edit) --- */}
             {isFoundationGenerated && (
-                <div className="space-y-6 pt-6 border-t-2 border-dashed border-brand-primary-start/50 animate-contentAppear">
-                    <div className="text-center bg-brand-primary-start/10 p-4 rounded-lg">
-                        <p className="font-bold text-brand-primary-start">🤖 We've generated a business foundation for you. Please review and edit the text below as needed.</p>
+                <div className="space-y-6 pt-8 border-t-2 border-dashed border-brand-primary-start/30 animate-contentAppear">
+                    <div className="text-center bg-gradient-to-r from-brand-primary-start/10 to-brand-primary-end/10 border border-brand-primary-start/20 p-6 rounded-2xl">
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">🤖 AI-Generated Business Foundation</h3>
+                        <p className="font-semibold text-brand-primary-start text-lg">Please review and edit the content below as needed</p>
                     </div>
                     <div>
-                        <label htmlFor="description" className={labelClasses}>About Your Business (AI Generated) *</label>
+                        <label htmlFor="description" className={labelClasses}>
+                            <span className="text-2xl">📝</span>
+                            About Your Business (AI Generated) *
+                        </label>
                         <textarea id="description" name="description" value={formData.description} onChange={handleInputChange} required rows={5} className={textareaClasses} disabled={isDemoMode}></textarea>
                     </div>
                     <div>
-                        <label htmlFor="targetCustomer" className={labelClasses}>Target Customer Persona (AI Generated) *</label>
+                        <label htmlFor="targetCustomer" className={labelClasses}>
+                            <span className="text-2xl">🎯</span>
+                            Target Customer Persona (AI Generated) *
+                        </label>
                         <textarea id="targetCustomer" name="targetCustomer" value={formData.targetCustomer} onChange={handleInputChange} required rows={4} className={textareaClasses} disabled={isDemoMode}></textarea>
                     </div>
                     <div>
-                        <label htmlFor="keyServices" className={labelClasses}>Key Services/Features (AI Generated)</label>
+                        <label htmlFor="keyServices" className={labelClasses}>
+                            <span className="text-2xl">⚡</span>
+                            Key Services/Features (AI Generated)
+                        </label>
                         <textarea id="keyServices" name="keyServices" value={formData.keyServices} onChange={handleInputChange} rows={4} className={textareaClasses} disabled={isDemoMode}></textarea>
                     </div>
                 </div>
             )}
             
             {/* --- Action Buttons --- */}
-            <div className="flex flex-wrap gap-4 pt-4">
+            <div className="flex flex-col sm:flex-row gap-6 pt-8 border-t border-gray-200">
                 {!isFoundationGenerated ? (
-                    <button onClick={handleGenerateClick} className={`${baseButtonClasses} ${primaryButtonClasses}`} disabled={isLoadingFoundation || isDemoMode}>
-                        {isLoadingFoundation ? 'Analyzing...' : '🤖 Generate Foundation & SEO Audit'}
-                    </button>
+                    <div className="relative group">
+                        <div className="absolute inset-0 bg-gradient-to-r from-brand-primary-start to-brand-primary-end rounded-xl blur opacity-25 group-hover:opacity-40 transition duration-300"></div>
+                        <button 
+                            onClick={handleGenerateClick} 
+                            className={`relative ${baseButtonClasses} ${primaryButtonClasses} flex items-center justify-center gap-4 shadow-depth hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:hover:scale-100 min-w-[320px] py-6 px-8 text-lg font-extrabold border-2 border-transparent hover:border-brand-primary-start/30 bg-gradient-to-r from-brand-primary-start to-brand-primary-end hover:from-brand-primary-start hover:to-brand-primary-end transform`} 
+                            disabled={isLoadingFoundation || isDemoMode}
+                        >
+                            {isLoadingFoundation ? (
+                                <>
+                                    <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
+                                    <span className="text-white text-lg">Analyzing Your Business...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <span className="text-2xl">🤖</span>
+                                    <span className="text-white text-lg">Generate Foundation & SEO Audit</span>
+                                </>
+                            )}
+                        </button>
+                    </div>
                 ) : (
-                    <button onClick={handleConfirmClick} className={`${baseButtonClasses} ${primaryButtonClasses}`} disabled={isLoadingStrategy || isDemoMode}>
-                        {isLoadingStrategy ? 'Generating Strategy...' : '✅ Confirm & Generate SEO Strategy'}
-                    </button>
+                    <div className="relative group">
+                        <div className="absolute inset-0 bg-gradient-to-r from-brand-primary-start to-brand-primary-end rounded-xl blur opacity-25 group-hover:opacity-40 transition duration-300"></div>
+                        <button 
+                            onClick={handleConfirmClick} 
+                            className={`relative ${baseButtonClasses} ${primaryButtonClasses} flex items-center justify-center gap-4 shadow-depth hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:hover:scale-100 min-w-[320px] py-6 px-8 text-lg font-extrabold border-2 border-transparent hover:border-brand-primary-start/30 bg-gradient-to-r from-brand-primary-start to-brand-primary-end hover:from-brand-primary-start hover:to-brand-primary-end transform`} 
+                            disabled={isLoadingStrategy || isDemoMode}
+                        >
+                            {isLoadingStrategy ? (
+                                <>
+                                    <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
+                                    <span className="text-white text-lg">Generating Strategy...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <span className="text-2xl">✅</span>
+                                    <span className="text-white text-lg">Confirm & Generate SEO Strategy</span>
+                                </>
+                            )}
+                        </button>
+                    </div>
                 )}
-                 <button type="button" className={`${baseButtonClasses} ${analyticsButtonClasses}`} onClick={onToggleAnalytics}>
-                    📊 Toggle Analytics
-                </button>
+                <div className="relative group">
+                    <div className="absolute inset-0 bg-gradient-to-r from-brand-analytics-start to-brand-analytics-end rounded-xl blur opacity-25 group-hover:opacity-40 transition duration-300"></div>
+                    <button 
+                        type="button" 
+                        className={`relative ${baseButtonClasses} ${analyticsButtonClasses} flex items-center justify-center gap-4 shadow-depth hover:shadow-xl transition-all duration-300 hover:scale-105 min-w-[280px] py-6 px-8 text-lg font-extrabold border-2 border-transparent hover:border-brand-analytics-start/30 bg-gradient-to-r from-brand-analytics-start to-brand-analytics-end hover:from-brand-analytics-start hover:to-brand-analytics-end transform`} 
+                        onClick={onToggleAnalytics}
+                    >
+                        <span className="text-2xl">📊</span>
+                        <span className="text-white text-lg">Toggle Analytics Dashboard</span>
+                    </button>
+                </div>
             </div>
         </form>
     );

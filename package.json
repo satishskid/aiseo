@@ -1,14 +1,37 @@
 {
   "name": "ai-seo-automation-platform",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "description": "AI-powered SEO automation platform for Indian businesses",
+  "author": "AI SEO Platform Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/ai-seo-platform.git"
+  },
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "vite --port 3000",
+    "build": "tsc && vite build",
     "preview": "vite preview",
     "tailwind": "npx tailwindcss -i ./src/index.css -o ./dist/output.css --watch",
-    "check-env": "node check-env.js"
+    "check-env": "node check-env.js",
+    "check-prod-env": "node scripts/check-production-env.js",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --ext ts,tsx --fix",
+    "type-check": "tsc --noEmit",
+    "test": "echo 'No tests specified' && exit 0",
+    "test:unit": "echo 'Unit tests not configured' && exit 0",
+    "test:integration": "echo 'Integration tests not configured' && exit 0",
+    "test:e2e": "echo 'E2E tests not configured' && exit 0",
+    "build:analyze": "npm run build && npx vite-bundle-analyzer dist/assets/*.js",
+    "setup:production": "chmod +x scripts/production-setup.sh && ./scripts/production-setup.sh",
+    "generate:presentations": "chmod +x scripts/generate-presentations.sh && ./scripts/generate-presentations.sh",
+    "deploy:staging": "npm run build && netlify deploy --dir dist",
+    "deploy:production": "npm run build && netlify deploy --prod --dir dist",
+    "clean": "rm -rf dist node_modules/.cache",
+    "audit:fix": "npm audit fix",
+    "outdated": "npm outdated"
   },
   "dependencies": {
     "@clerk/clerk-react": "^5.40.0",

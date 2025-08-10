@@ -112,10 +112,10 @@ export const API_PROVIDERS: ApiProviderConfig[] = [
 ];
 
 
-export const baseButtonClasses = "py-[18px] px-[35px] rounded-xl font-bold cursor-pointer transition-all duration-400 uppercase tracking-wider hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed text-base";
+export const baseButtonClasses = "py-[20px] px-[40px] rounded-xl font-bold cursor-pointer transition-all duration-400 uppercase tracking-wider hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed text-base shadow-lg hover:shadow-xl";
 
-export const primaryButtonClasses = "bg-gradient-to-tr from-brand-primary-start to-brand-primary-end text-white hover:shadow-[0_10px_25px_rgba(102,126,234,0.4)]";
+export const primaryButtonClasses = "bg-gradient-to-tr from-brand-primary-start to-brand-primary-end text-white hover:shadow-[0_12px_30px_rgba(102,126,234,0.5)] hover:from-indigo-600 hover:to-purple-600";
 
-export const analyticsButtonClasses = "bg-gradient-to-tr from-brand-analytics-start to-brand-analytics-end text-white hover:shadow-[0_10px_25px_rgba(237,137,54,0.4)]";
+export const analyticsButtonClasses = "bg-gradient-to-tr from-brand-analytics-start to-brand-analytics-end text-white hover:shadow-[0_12px_30px_rgba(237,137,54,0.5)] hover:from-orange-600 hover:to-red-600";
 
-export const secondaryButtonClasses = "bg-gradient-to-tr from-brand-secondary-start to-brand-secondary-end text-white hover:shadow-[0_10px_25px_rgba(72,187,120,0.4)]";
+export const secondaryButtonClasses = "bg-gradient-to-tr from-brand-secondary-start to-brand-secondary-end text-white hover:shadow-[0_12px_30px_rgba(72,187,120,0.5)] hover:from-green-600 hover:to-emerald-600";

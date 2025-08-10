@@ -47,13 +47,12 @@ export const FinalActions: React.FC<{ allData: AllData }> = ({ allData }) => {
             // Keywords
             keywordStrategy?.primaryKeywords.forEach(k => content += `"Keywords","Primary","${k}"\n`);
             keywordStrategy?.longTailKeywords.forEach(k => content += `"Keywords","Long Tail","${k}"\n`);
-            keywordStrategy?.localKeywords.forEach(k => content += `"Keywords","Local","${k}"\n`);
+            keywordStrategy?.locationKeywords.forEach(k => content += `"Keywords","Location","${k}"\n`);
             keywordStrategy?.competitorKeywords.forEach(k => content += `"Keywords","Competitor","${k}"\n`);
 
             // Content Plan
             contentPlan?.blogPosts.forEach((post, index) => {
                 content += `"Content","Blog Post ${index + 1}","${post.title}"\n`;
-                if (post.content) content += `"Content","Blog Content ${index + 1}","${post.content.substring(0, 100)}..."\n`;
             });
 
             contentPlan?.landingPages.forEach((page, index) => {
@@ -62,47 +61,33 @@ export const FinalActions: React.FC<{ allData: AllData }> = ({ allData }) => {
 
             // Technical SEO
             technicalSeoPlan?.onPageOptimization.forEach((item, index) => {
-                content += `"Technical SEO","On-Page ${index + 1}","${item.item}"\n`;
+                content += `"Technical SEO","On-Page ${index + 1}","${item.element}"\n`;
             });
 
             technicalSeoPlan?.structuredData.forEach((item, index) => {
-                content += `"Technical SEO","Structured Data ${index + 1}","${item.item}"\n`;
+                content += `"Technical SEO","Structured Data ${index + 1}","${item.type}"\n`;
             });
 
             // Conversion Optimization
-            conversionPlan?.goals.forEach((goal, index) => {
-                content += `"Conversion","Goal ${index + 1}","${goal.description}"\n`;
+            conversionPlan?.conversionGoals.forEach((goal, index) => {
+                content += `"Conversion","Goal ${index + 1}","${goal.goal}"\n`;
             });
 
-            conversionPlan?.userJourneys.forEach((journey, index) => {
-                content += `"Conversion","User Journey ${index + 1}","${journey.name}"\n`;
+            conversionPlan?.userJourney.forEach((journey, index) => {
+                content += `"Conversion","User Journey ${index + 1}","${journey.stage}"\n`;
             });
 
             // Performance Analysis
             performanceAnalysis?.currentPerformance.forEach((item, index) => {
-                content += `"Performance","Current Performance ${index + 1}","${item.metric}: ${item.value}"\n`;
+                content += `"Performance","Current Performance ${index + 1}","${item.metric}: ${item.current}"\n`;
             });
 
             performanceAnalysis?.opportunities.forEach((item, index) => {
-                content += `"Performance","Opportunity ${index + 1}","${item.description}"\n`;
+                content += `"Performance","Opportunity ${index + 1}","${item.area}"\n`;
             });
 
             performanceAnalysis?.recommendations.forEach((item, index) => {
                 content += `"Performance","Recommendation ${index + 1}","${item.action}"\n`;
-            });
-
-            // Conversion Plan
-            conversionPlan?.goals.forEach((goal, index) => {
-                content += `"Conversion","Goal ${index + 1}","${goal.name}"\n`;
-            });
-
-            conversionPlan?.userJourneys.forEach((journey, index) => {
-                content += `"Conversion","User Journey ${index + 1}","${journey.name}"\n`;
-            });
-
-            // Performance Analysis
-            performanceAnalysis?.currentPerformance.forEach((metric, index) => {
-                content += `"Performance","Metric ${index + 1}","${metric.name}: ${metric.value}"\n`;
             });
 
             downloadFile(`${filename}.csv`, content, 'text/csv');
@@ -115,23 +100,33 @@ export const FinalActions: React.FC<{ allData: AllData }> = ({ allData }) => {
                 <div className="bg-gradient-to-br from-brand-secondary-start to-brand-secondary-end text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg shadow-md flex-shrink-0">
                     ✅
                 </div>
-                <h2 className="text-gray-800 text-2xl font-bold ml-4">Complete SEO Automation Package</h2>
+                <h2 className="text-gray-900 text-2xl font-bold ml-4">Complete SEO Automation Package</h2>
             </div>
-            <p className="text-gray-600 mb-6">Your comprehensive SEO strategy is complete. Export your data or generate reports below.</p>
+            <p className="text-gray-800 mb-6 font-medium">Your comprehensive SEO strategy is complete. Export your data or generate reports below.</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                  <div>
-                    <h4 className="font-bold text-gray-700 mb-2">📊 Export & Analytics:</h4>
+                    <h4 className="font-bold text-gray-900 mb-3 text-lg">📊 Export & Analytics:</h4>
                     <div className="flex flex-wrap gap-3">
-                         <button className={`${baseButtonClasses} ${primaryButtonClasses}`} onClick={() => handleExport('md')}>Export as Markdown</button>
-                         <button className={`${baseButtonClasses} ${primaryButtonClasses}`} onClick={() => handleExport('csv')}>Export as CSV</button>
-                         <button className={`${baseButtonClasses} ${analyticsButtonClasses}`} onClick={() => alert('Generating Analytics Report...')}>Generate Analytics Report</button>
+                         <button className="py-4 px-6 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold text-base rounded-lg hover:scale-105 transform transition-all duration-300 shadow-lg hover:shadow-xl" onClick={() => handleExport('md')}>
+                            Export as Markdown
+                         </button>
+                         <button className="py-4 px-6 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold text-base rounded-lg hover:scale-105 transform transition-all duration-300 shadow-lg hover:shadow-xl" onClick={() => handleExport('csv')}>
+                            Export as CSV
+                         </button>
+                         <button className="py-4 px-6 bg-gradient-to-r from-orange-600 to-orange-700 text-white font-bold text-base rounded-lg hover:scale-105 transform transition-all duration-300 shadow-lg hover:shadow-xl" onClick={() => alert('Generating Analytics Report...')}>
+                            Generate Analytics Report
+                         </button>
                     </div>
                  </div>
                  <div>
-                    <h4 className="font-bold text-gray-700 mb-2">🔗 Integration & Service:</h4>
+                    <h4 className="font-bold text-gray-900 mb-3 text-lg">🔗 Integration & Service:</h4>
                     <div className="flex flex-wrap gap-3">
-                        <button className={`${baseButtonClasses} ${secondaryButtonClasses}`} onClick={() => alert('Generating Client Package...')}>Generate Client Package</button>
-                        <button className={`${baseButtonClasses} ${secondaryButtonClasses}`} onClick={() => alert('Generating Make.com Workflow...')}>Generate Make.com Workflow</button>
+                        <button className="py-4 px-6 bg-gradient-to-r from-green-600 to-green-700 text-white font-bold text-base rounded-lg hover:scale-105 transform transition-all duration-300 shadow-lg hover:shadow-xl" onClick={() => alert('Generating Client Package...')}>
+                            Generate Client Package
+                        </button>
+                        <button className="py-4 px-6 bg-gradient-to-r from-green-600 to-green-700 text-white font-bold text-base rounded-lg hover:scale-105 transform transition-all duration-300 shadow-lg hover:shadow-xl" onClick={() => alert('Generating Make.com Workflow...')}>
+                            Generate Make.com Workflow
+                        </button>
                     </div>
                 </div>
             </div>

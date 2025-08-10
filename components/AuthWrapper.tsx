@@ -1,34 +1,26 @@
 import React from 'react';
-import { useClerkAuth } from '../context/ClerkAuthContext';
-import { useFirebase } from '../context/FirebaseContext';
-import { AuthScreen } from './AuthScreen';
+import { useDemoAuth } from '../context/DemoAuthContext';
+import { DemoAuthScreen } from './DemoAuthScreen';
 import App from '../App';
 
 export const AuthWrapper: React.FC = () => {
-  const { isSignedIn, isLoaded } = useClerkAuth();
-  const { isAuthenticated, loading: authLoading } = useFirebase();
-  const [isSignUp, setIsSignUp] = React.useState(false);
+  const { isAuthenticated, isLoading, login } = useDemoAuth();
 
   // Show loading state while checking auth status
-  if (!isLoaded || authLoading) {
+  if (isLoading) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-gray-100">
+      <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
         <div className="text-center">
-          <div className="w-12 h-12 mx-auto mb-4 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div>
-          <p className="text-gray-600">Loading...</p>
+          <div className="w-12 h-12 mx-auto mb-4 border-4 border-gray-200 border-t-brand-primary-start rounded-full animate-spin"></div>
+          <p className="text-gray-800 font-semibold">Loading AI SEO Platform...</p>
         </div>
       </div>
     );
   }
 
   // Show auth screen if not authenticated
-  if (!isSignedIn && !isAuthenticated) {
-    return (
-      <AuthScreen 
-        isSignUp={isSignUp}
-        onToggleMode={() => setIsSignUp(!isSignUp)}
-      />
-    );
+  if (!isAuthenticated) {
+    return <DemoAuthScreen onLogin={login} />;
   }
 
   // Show main app if authenticated
