@@ -45,34 +45,43 @@ export const ActionableTechnicalSeo: React.FC<ActionableTechnicalSeoProps> = ({ 
         <h4 className="font-bold text-gray-700 mb-3 flex items-center">
           🚨 Technical Issues to Fix
           <CopyButton 
-            text={data.technicalIssues.map(issue => `${issue.priority}: ${issue.issue} - ${issue.solution}`).join('\n')}
+            text={data.technicalIssues && Array.isArray(data.technicalIssues) ? 
+              data.technicalIssues.map(issue => `${issue.priority}: ${issue.issue} - ${issue.solution}`).join('\n') : 
+              'No technical issues data available'
+            }
             label="technical-issues"
           />
         </h4>
         <div className="space-y-3">
-          {data.technicalIssues.map((issue, index) => (
-            <div key={index} className={`p-4 rounded-lg border ${
-              issue.priority === 'High' ? 'bg-red-50 border-red-200' :
-              issue.priority === 'Medium' ? 'bg-yellow-50 border-yellow-200' :
-              'bg-green-50 border-green-200'
-            }`}>
-              <div className="flex justify-between items-start">
-                <div>
-                  <h5 className="font-semibold text-gray-800">{issue.issue}</h5>
-                  <p className="text-gray-600 text-sm mt-1">{issue.description}</p>
-                  <p className="text-gray-700 text-sm mt-2"><strong>Solution:</strong> {issue.solution}</p>
-                  <span className="text-xs text-gray-500">Estimated time: {issue.estimatedTime}</span>
+          {data.technicalIssues && Array.isArray(data.technicalIssues) ? 
+            data.technicalIssues.map((issue, index) => (
+              <div key={index} className={`p-4 rounded-lg border ${
+                issue.priority === 'High' ? 'bg-red-50 border-red-200' :
+                issue.priority === 'Medium' ? 'bg-yellow-50 border-yellow-200' :
+                'bg-green-50 border-green-200'
+              }`}>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h5 className="font-semibold text-gray-800">{issue.issue}</h5>
+                    <p className="text-gray-600 text-sm mt-1">{issue.description}</p>
+                    <p className="text-gray-700 text-sm mt-2"><strong>Solution:</strong> {issue.solution}</p>
+                    <span className="text-xs text-gray-500">Estimated time: {issue.estimatedTime}</span>
+                  </div>
+                  <span className={`px-2 py-1 text-xs rounded-full ${
+                    issue.priority === 'High' ? 'bg-red-100 text-red-800' :
+                    issue.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-green-100 text-green-800'
+                  }`}>
+                    {issue.priority}
+                  </span>
                 </div>
-                <span className={`px-2 py-1 text-xs rounded-full ${
-                  issue.priority === 'High' ? 'bg-red-100 text-red-800' :
-                  issue.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
-                  'bg-green-100 text-green-800'
-                }`}>
-                  {issue.priority}
-                </span>
               </div>
-            </div>
-          ))}
+            )) : (
+              <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg text-center text-gray-600">
+                No technical issues data available
+              </div>
+            )
+          }
         </div>
       </div>
 
@@ -81,34 +90,43 @@ export const ActionableTechnicalSeo: React.FC<ActionableTechnicalSeoProps> = ({ 
         <h4 className="font-bold text-gray-700 mb-3 flex items-center">
           📄 On-Page Optimization
           <CopyButton 
-            text={data.onPageOptimization.map(item => `${item.element}: ${item.current} → ${item.recommended}`).join('\n')}
+            text={data.onPageOptimization && Array.isArray(data.onPageOptimization) ? 
+              data.onPageOptimization.map(item => `${item.element}: ${item.current} → ${item.recommended}`).join('\n') :
+              'No on-page optimization data available'
+            }
             label="onpage-optimization"
           />
         </h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {data.onPageOptimization.map((item, index) => (
-            <div key={index} className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-              <h5 className="font-semibold text-blue-800">{item.element}</h5>
-              <p className="text-blue-700 text-sm">Current: {item.current}</p>
-              <p className="text-blue-700 text-sm">Recommended: {item.recommended}</p>
-              <div className="mt-2 flex gap-2">
-                <span className={`px-2 py-1 text-xs rounded-full ${
-                  item.impact === 'High' ? 'bg-red-100 text-red-800' :
-                  item.impact === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
-                  'bg-green-100 text-green-800'
-                }`}>
-                  Impact: {item.impact}
-                </span>
-                <span className={`px-2 py-1 text-xs rounded-full ${
-                  item.difficulty === 'Easy' ? 'bg-green-100 text-green-800' :
-                  item.difficulty === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
-                  'bg-red-100 text-red-800'
-                }`}>
-                  Difficulty: {item.difficulty}
-                </span>
+          {data.onPageOptimization && Array.isArray(data.onPageOptimization) ? 
+            data.onPageOptimization.map((item, index) => (
+              <div key={index} className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <h5 className="font-semibold text-blue-800">{item.element}</h5>
+                <p className="text-blue-700 text-sm">Current: {item.current}</p>
+                <p className="text-blue-700 text-sm">Recommended: {item.recommended}</p>
+                <div className="mt-2 flex gap-2">
+                  <span className={`px-2 py-1 text-xs rounded-full ${
+                    item.impact === 'High' ? 'bg-red-100 text-red-800' :
+                    item.impact === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-green-100 text-green-800'
+                  }`}>
+                    Impact: {item.impact}
+                  </span>
+                  <span className={`px-2 py-1 text-xs rounded-full ${
+                    item.difficulty === 'Easy' ? 'bg-green-100 text-green-800' :
+                    item.difficulty === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-red-100 text-red-800'
+                  }`}>
+                    Difficulty: {item.difficulty}
+                  </span>
+                </div>
               </div>
-            </div>
-          ))}
+            )) : (
+              <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg text-center text-gray-600">
+                No on-page optimization data available
+              </div>
+            )
+          }
         </div>
       </div>
 
@@ -117,29 +135,41 @@ export const ActionableTechnicalSeo: React.FC<ActionableTechnicalSeoProps> = ({ 
         <h4 className="font-bold text-gray-700 mb-3 flex items-center">
           🏷️ Structured Data Implementation
           <CopyButton 
-            text={data.structuredData.map(item => `${item.type}: ${item.description}\n${item.implementation}`).join('\n\n')}
+            text={data.structuredData && Array.isArray(data.structuredData) ? 
+              data.structuredData.map(item => `${item.type}: ${item.description}\n${item.implementation}`).join('\n\n') :
+              'No structured data information available'
+            }
             label="structured-data"
           />
         </h4>
         <div className="space-y-3">
-          {data.structuredData.map((item, index) => (
-            <div key={index} className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-              <h5 className="font-semibold text-gray-800">{item.type}</h5>
-              <p className="text-gray-600 text-sm mt-1">{item.description}</p>
-              <div className="mt-3 p-3 bg-white rounded border">
-                <h6 className="text-xs font-medium text-gray-700 mb-1">Implementation:</h6>
-                <pre className="text-xs text-gray-600 whitespace-pre-wrap">{item.implementation}</pre>
+          {data.structuredData && Array.isArray(data.structuredData) ?
+            data.structuredData.map((item, index) => (
+              <div key={index} className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <h5 className="font-semibold text-gray-800">{item.type}</h5>
+                <p className="text-gray-600 text-sm mt-1">{item.description}</p>
+                <div className="mt-3 p-3 bg-white rounded border">
+                  <h6 className="text-xs font-medium text-gray-700 mb-1">Implementation:</h6>
+                  <pre className="text-xs text-gray-600 whitespace-pre-wrap">{item.implementation}</pre>
+                </div>
+                <div className="mt-2">
+                  <h6 className="text-xs font-medium text-gray-700 mb-1">Benefits:</h6>
+                  <ul className="text-xs text-gray-600 list-disc list-inside">
+                    {item.benefits && Array.isArray(item.benefits) ? 
+                      item.benefits.map((benefit, benefitIndex) => (
+                        <li key={benefitIndex}>{benefit}</li>
+                      )) : 
+                      <li>No benefits listed</li>
+                    }
+                  </ul>
+                </div>
               </div>
-              <div className="mt-2">
-                <h6 className="text-xs font-medium text-gray-700 mb-1">Benefits:</h6>
-                <ul className="text-xs text-gray-600 list-disc list-inside">
-                  {item.benefits.map((benefit, benefitIndex) => (
-                    <li key={benefitIndex}>{benefit}</li>
-                  ))}
-                </ul>
+            )) : (
+              <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg text-center text-gray-600">
+                No structured data information available
               </div>
-            </div>
-          ))}
+            )
+          }
         </div>
       </div>
 
@@ -148,19 +178,28 @@ export const ActionableTechnicalSeo: React.FC<ActionableTechnicalSeoProps> = ({ 
         <h4 className="font-bold text-gray-700 mb-3 flex items-center">
           🚀 Site Speed Optimization
           <CopyButton 
-            text={data.siteSpeed.map(item => `${item.metric}: Current ${item.current} → Target ${item.target}\nImprovement: ${item.improvement}`).join('\n\n')}
+            text={data.siteSpeed && Array.isArray(data.siteSpeed) ? 
+              data.siteSpeed.map(item => `${item.metric}: Current ${item.current} → Target ${item.target}\nImprovement: ${item.improvement}`).join('\n\n') :
+              'No site speed data available'
+            }
             label="site-speed"
           />
         </h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {data.siteSpeed.map((item, index) => (
-            <div key={index} className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-              <h5 className="font-semibold text-orange-800">{item.metric}</h5>
-              <p className="text-orange-700 text-sm">Current: {item.current}</p>
-              <p className="text-orange-700 text-sm">Target: {item.target}</p>
-              <p className="text-gray-600 text-sm mt-2">{item.improvement}</p>
-            </div>
-          ))}
+          {data.siteSpeed && Array.isArray(data.siteSpeed) ?
+            data.siteSpeed.map((item, index) => (
+              <div key={index} className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                <h5 className="font-semibold text-orange-800">{item.metric}</h5>
+                <p className="text-orange-700 text-sm">Current: {item.current}</p>
+                <p className="text-orange-700 text-sm">Target: {item.target}</p>
+                <p className="text-gray-600 text-sm mt-2">{item.improvement}</p>
+              </div>
+            )) : (
+              <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg text-center text-gray-600">
+                No site speed optimization data available
+              </div>
+            )
+          }
         </div>
       </div>
 
@@ -169,18 +208,27 @@ export const ActionableTechnicalSeo: React.FC<ActionableTechnicalSeoProps> = ({ 
         <h4 className="font-bold text-gray-700 mb-3 flex items-center">
           📱 Mobile Optimization
           <CopyButton 
-            text={data.mobileOptimization.map(item => `${item.aspect}: ${item.status}\nRecommendation: ${item.recommendation}`).join('\n\n')}
+            text={data.mobileOptimization && Array.isArray(data.mobileOptimization) ? 
+              data.mobileOptimization.map(item => `${item.aspect}: ${item.status}\nRecommendation: ${item.recommendation}`).join('\n\n') :
+              'No mobile optimization data available'
+            }
             label="mobile-optimization"
           />
         </h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {data.mobileOptimization.map((item, index) => (
-            <div key={index} className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-              <h5 className="font-semibold text-purple-800">{item.aspect}</h5>
-              <p className="text-purple-700 text-sm">Status: {item.status}</p>
-              <p className="text-gray-600 text-sm mt-2">{item.recommendation}</p>
-            </div>
-          ))}
+          {data.mobileOptimization && Array.isArray(data.mobileOptimization) ?
+            data.mobileOptimization.map((item, index) => (
+              <div key={index} className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                <h5 className="font-semibold text-purple-800">{item.aspect}</h5>
+                <p className="text-purple-700 text-sm">Status: {item.status}</p>
+                <p className="text-gray-600 text-sm mt-2">{item.recommendation}</p>
+              </div>
+            )) : (
+              <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg text-center text-gray-600">
+                No mobile optimization data available
+              </div>
+            )
+          }
         </div>
       </div>
 
@@ -189,19 +237,28 @@ export const ActionableTechnicalSeo: React.FC<ActionableTechnicalSeoProps> = ({ 
         <h4 className="font-bold text-gray-700 mb-3 flex items-center">
           📍 Local SEO Optimization
           <CopyButton 
-            text={data.localSeo.map(item => `${item.element}: ${item.current}\nOptimization: ${item.optimization}`).join('\n\n')}
+            text={data.localSeo && Array.isArray(data.localSeo) ? 
+              data.localSeo.map(item => `${item.element}: ${item.current}\nOptimization: ${item.optimization}`).join('\n\n') :
+              'No local SEO data available'
+            }
             label="local-seo"
           />
         </h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {data.localSeo.map((item, index) => (
-            <div key={index} className="bg-teal-50 border border-teal-200 rounded-lg p-4">
-              <h5 className="font-semibold text-teal-800">{item.element}</h5>
-              <p className="text-teal-700 text-sm">Current: {item.current}</p>
-              <p className="text-gray-600 text-sm mt-2">{item.optimization}</p>
-              <span className="text-xs text-gray-500">Impact: {item.impact}</span>
-            </div>
-          ))}
+          {data.localSeo && Array.isArray(data.localSeo) ?
+            data.localSeo.map((item, index) => (
+              <div key={index} className="bg-teal-50 border border-teal-200 rounded-lg p-4">
+                <h5 className="font-semibold text-teal-800">{item.element}</h5>
+                <p className="text-teal-700 text-sm">Current: {item.current}</p>
+                <p className="text-gray-600 text-sm mt-2">{item.optimization}</p>
+                <span className="text-xs text-gray-500">Impact: {item.impact}</span>
+              </div>
+            )) : (
+              <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg text-center text-gray-600">
+                No local SEO optimization data available
+              </div>
+            )
+          }
         </div>
       </div>
 
@@ -210,25 +267,34 @@ export const ActionableTechnicalSeo: React.FC<ActionableTechnicalSeoProps> = ({ 
         <h4 className="font-bold text-gray-700 mb-3 flex items-center">
           ✅ Implementation Priority
           <CopyButton 
-            text={data.implementationPriority.map((item, i) => `${i + 1}. ${item}`).join('\n')}
+            text={data.implementationPriority && Array.isArray(data.implementationPriority) ? 
+              data.implementationPriority.map((item, i) => `${i + 1}. ${item}`).join('\n') :
+              'No implementation priority data available'
+            }
             label="implementation-priority"
           />
         </h4>
         <div className="space-y-2">
-          {data.implementationPriority.map((item, index) => (
-            <div key={index} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
-              <span className="bg-blue-500 text-white text-xs w-6 h-6 rounded-full flex items-center justify-center mt-0.5">
-                {index + 1}
-              </span>
-              <span className="text-gray-700 flex-1">{item}</span>
-              <button
-                onClick={() => handleCopy(item, `priority-${index}`)}
-                className="text-gray-400 hover:text-blue-600 transition-colors"
-              >
-                {copiedItem === `priority-${index}` ? '✓' : '📋'}
-              </button>
-            </div>
-          ))}
+          {data.implementationPriority && Array.isArray(data.implementationPriority) ?
+            data.implementationPriority.map((item, index) => (
+              <div key={index} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
+                <span className="bg-blue-500 text-white text-xs w-6 h-6 rounded-full flex items-center justify-center mt-0.5">
+                  {index + 1}
+                </span>
+                <span className="text-gray-700 flex-1">{item}</span>
+                <button
+                  onClick={() => handleCopy(item, `priority-${index}`)}
+                  className="text-gray-400 hover:text-blue-600 transition-colors"
+                >
+                  {copiedItem === `priority-${index}` ? '✓' : '📋'}
+                </button>
+              </div>
+            )) : (
+              <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg text-center text-gray-600">
+                No implementation priority data available
+              </div>
+            )
+          }
         </div>
       </div>
 

@@ -257,7 +257,7 @@ export const UserGuidance: React.FC<UserGuidanceProps> = ({
 // Notification component for downloads/copies
 interface NotificationProps {
   message: string;
-  type: 'success' | 'info' | 'warning';
+  type: 'success' | 'info' | 'warning' | 'error';
   isVisible: boolean;
   onClose: () => void;
 }
@@ -270,23 +270,27 @@ export const Notification: React.FC<NotificationProps> = ({
 }) => {
   useEffect(() => {
     if (isVisible) {
-      const timer = setTimeout(onClose, 4000);
+      // Error notifications stay longer since they're critical
+      const timeout = type === 'error' ? 8000 : 4000;
+      const timer = setTimeout(onClose, timeout);
       return () => clearTimeout(timer);
     }
-  }, [isVisible, onClose]);
+  }, [isVisible, onClose, type]);
 
   if (!isVisible) return null;
 
   const bgColor = {
     success: 'bg-green-500',
     info: 'bg-blue-500',
-    warning: 'bg-yellow-500'
+    warning: 'bg-yellow-500',
+    error: 'bg-red-500'
   }[type];
 
   const icon = {
     success: '✅',
     info: 'ℹ️',
-    warning: '⚠️'
+    warning: '⚠️',
+    error: '🚨'
   }[type];
 
   return (

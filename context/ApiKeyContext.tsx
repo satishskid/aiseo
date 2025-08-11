@@ -13,7 +13,10 @@ export const ApiKeyProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const [apiKeys, setApiKeysInternal] = useState<ApiKeys>(() => {
     try {
       const storedKeys = localStorage.getItem('api-keys');
-      return storedKeys ? JSON.parse(storedKeys) : {};
+      console.log('🔑 Loading API keys from localStorage:', storedKeys ? 'Keys found' : 'No keys found');
+      const parsedKeys = storedKeys ? JSON.parse(storedKeys) : {};
+      console.log('🔑 Parsed API keys:', Object.keys(parsedKeys).length, 'keys loaded');
+      return parsedKeys;
     } catch (error) {
       console.error("Could not access localStorage or parse keys", error);
       return {};
@@ -22,6 +25,7 @@ export const ApiKeyProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   useEffect(() => {
     try {
+      console.log('🔑 Saving API keys to localStorage:', Object.keys(apiKeys).length, 'keys');
       localStorage.setItem('api-keys', JSON.stringify(apiKeys));
     } catch (error) {
        console.error("Could not access localStorage to save keys", error);
@@ -29,6 +33,7 @@ export const ApiKeyProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   }, [apiKeys]);
 
   const setApiKeys = (keys: ApiKeys) => {
+    console.log('🔑 Setting new API keys:', Object.keys(keys).length, 'keys');
     setApiKeysInternal(keys);
   };
 

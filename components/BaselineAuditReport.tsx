@@ -42,10 +42,10 @@ export const BaselineAuditReport: React.FC<BaselineAuditReportProps> = ({ audit 
         </div>
       </div>
       <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <AuditSection title="🚨 Issues Found" items={audit.issues.map(issue => issue.issue)} />
-        <AuditSection title="🎯 Opportunities" items={audit.opportunities.map(opp => opp.opportunity)} />
-        <AuditSection title="📋 Recommendations" items={audit.recommendations.map(rec => rec.action)} />
-        <AuditSection title="🏆 Competitor Analysis" items={audit.competitorAnalysis.map(comp => `${comp.competitor}: ${comp.strengths[0] || 'No data'}`)} />
+        <AuditSection title="🚨 Issues Found" items={(audit.issues || []).map(issue => issue.issue)} />
+        <AuditSection title="🎯 Opportunities" items={(audit.opportunities || []).map(opp => opp.opportunity)} />
+        <AuditSection title="📋 Recommendations" items={(audit.recommendations || []).map(rec => rec.action)} />
+        <AuditSection title="🏆 Competitor Analysis" items={(audit.competitorAnalysis || []).map(comp => `${comp.competitor}: ${comp.strengths?.[0] || 'No data'}`)} />
       </div>
     </div>
   );

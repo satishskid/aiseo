@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Type, GenerateContentResponse } from "@google/genai";
 import type { 
     AllData, 
@@ -29,6 +28,7 @@ export interface AIService {
   generateConversionPlan(data: BrandData): Promise<ConversionPlan>;
   analyzePerformanceData(strategy: AllData, performanceData: PerformanceInputs): Promise<PerformanceAnalysis>;
   generateSalesInsights(strategy: AllData): Promise<SalesInsight[]>;
+  generateRealAnalytics(strategy: AllData): Promise<{ keywords: number; contentPieces: number; socialPosts: number; estimatedReach: number; competitiveScore: number; seoScore: number }>;
 }
 
 
@@ -43,6 +43,21 @@ export class GeminiService implements AIService {
         if (!apiKey) {
             throw new Error("An API key is required to initialize the GeminiService.");
         }
+        
+        // STRICT API key validation - prevent false positives
+        if (apiKey.includes('placeholder') || 
+            apiKey.includes('your-') || 
+            apiKey.includes('dummy') ||
+            apiKey.includes('test') ||
+            apiKey.includes('example') ||
+            apiKey.trim() === '' ||
+            apiKey === 'undefined' ||
+            apiKey === 'null' ||
+            apiKey.length < 30 ||  // Gemini keys are typically 39 characters
+            !apiKey.startsWith('AIza')) {  // Gemini keys start with AIza
+            throw new Error("Invalid Gemini API key format. Please provide a valid API key starting with 'AIza'.");
+        }
+        
         this.ai = new GoogleGenAI({ apiKey });
     }
 
@@ -60,10 +75,44 @@ export class GeminiService implements AIService {
             const jsonText = response.text.trim();
             // Basic cleanup for markdown code blocks if the API returns it
             const cleanedJson = jsonText.replace(/^```json\s*|```$/g, '').trim();
-            return JSON.parse(cleanedJson) as T;
+            const result = JSON.parse(cleanedJson) as T;
+            
+            // Special handling for KeywordStrategy to parse JSON strings
+            if (this.isKeywordStrategy(result)) {
+                this.parseKeywordJsonStrings(result);
+            }
+            
+            return result;
         } catch (e) {
             console.error("Failed to parse Gemini JSON response:", response.text);
             throw new Error("Invalid JSON response from API. Please check the console for details.");
+        }
+    }
+
+    private isKeywordStrategy(obj: any): obj is KeywordStrategy {
+        return obj && typeof obj === 'object' && 'primaryKeywords' in obj && 'searchVolume' in obj && 'keywordDifficulty' in obj;
+    }
+
+    private parseKeywordJsonStrings(strategy: KeywordStrategy): void {
+        try {
+            // Parse searchVolume if it's a string
+            if (typeof strategy.searchVolume === 'string') {
+                strategy.searchVolume = JSON.parse(strategy.searchVolume);
+            }
+            
+            // Parse keywordDifficulty if it's a string
+            if (typeof strategy.keywordDifficulty === 'string') {
+                strategy.keywordDifficulty = JSON.parse(strategy.keywordDifficulty);
+            }
+        } catch (parseError) {
+            console.warn('Failed to parse keyword JSON strings, using fallback data:', parseError);
+            // Initialize as empty objects if parsing fails
+            if (typeof strategy.searchVolume === 'string') {
+                strategy.searchVolume = {};
+            }
+            if (typeof strategy.keywordDifficulty === 'string') {
+                strategy.keywordDifficulty = {};
+            }
         }
     }
 
@@ -154,6 +203,8 @@ export class GeminiService implements AIService {
         - A total count of unique keywords generated.
         - A 'competitiveScore' (0-100) estimating ranking difficulty.
         - An initial 'seoScore' (0-100) estimating the business's SEO readiness based on the info provided (this should be an improvement on the baseline audit).
+        
+        IMPORTANT: For searchVolume and keywordDifficulty objects, you MUST include ALL keywords from ALL categories as keys with realistic values for the Indian market.
       `;
 
       const schema = {
@@ -170,8 +221,16 @@ export class GeminiService implements AIService {
           totalKeywords: { type: Type.INTEGER, description: "Total number of unique keywords generated." },
           competitiveScore: { type: Type.INTEGER, description: "An estimated competitive score from 0 to 100." },
           seoScore: { type: Type.INTEGER, description: "An estimated initial SEO readiness score from 0 to 100." },
+          searchVolume: { 
+            type: Type.STRING, 
+            description: "JSON string containing search volume data for ALL keywords in format: {\"keyword1\": 1200, \"keyword2\": 890}. Must include ALL keywords from all categories with realistic monthly search volumes for Indian market."
+          },
+          keywordDifficulty: { 
+            type: Type.STRING, 
+            description: "JSON string containing difficulty scores for ALL keywords in format: {\"keyword1\": 45, \"keyword2\": 52}. Must include ALL keywords from all categories with difficulty scores 0-100."
+          },
         },
-        required: ["primaryKeywords", "urgentKeywords", "serviceKeywords", "problemKeywords", "longTailKeywords", "locationKeywords", "contentPillars", "strategicInsights", "totalKeywords", "competitiveScore", "seoScore"],
+        required: ["primaryKeywords", "urgentKeywords", "serviceKeywords", "problemKeywords", "longTailKeywords", "locationKeywords", "contentPillars", "strategicInsights", "totalKeywords", "competitiveScore", "seoScore", "searchVolume", "keywordDifficulty"],
       };
 
       return this.generateWithSchema<KeywordStrategy>(prompt, schema);
@@ -188,7 +247,18 @@ export class GeminiService implements AIService {
             1. A Content Plan:
                - Homepage title and meta description.
                - Ideas for service, urgent, and location-based pages (3-5 examples each). For each page, provide a title, example URL slug, word count, and key features.
-               - 5 SEO-optimized blog post titles.
+               - 5 detailed blog posts with full specifications:
+                 * title: SEO-optimized blog post title
+                 * slug: URL-friendly slug
+                 * metaDescription: Meta description for SEO
+                 * targetKeywords: Array of 2-3 relevant keywords from the keyword strategy
+                 * outline: Array of 4-6 section headings for the blog post structure
+                 * wordCount: Recommended word count (typically 800-2000)
+                 * difficulty: Writing difficulty level (Easy/Medium/Hard)
+                 * priority: Publishing priority (High/Medium/Low)
+                 * estimatedTraffic: Expected monthly traffic (number)
+                 * contentType: Type of content (Educational/Promotional/News/Guide)
+                 * callToAction: Specific call-to-action for the post
                - Calculate a total number of content pages.
             2. Social Media Posts:
                - 4 distinct posts for each platform: LinkedIn, Twitter, Facebook, Instagram.
@@ -206,6 +276,25 @@ export class GeminiService implements AIService {
             },
             required: ["title", "url", "wordCount", "features"]
         };
+        
+        const blogPostSchema = {
+            type: Type.OBJECT,
+            properties: {
+                title: { type: Type.STRING },
+                slug: { type: Type.STRING },
+                metaDescription: { type: Type.STRING },
+                targetKeywords: { type: Type.ARRAY, items: { type: Type.STRING } },
+                outline: { type: Type.ARRAY, items: { type: Type.STRING } },
+                wordCount: { type: Type.INTEGER },
+                difficulty: { type: Type.STRING },
+                priority: { type: Type.STRING },
+                estimatedTraffic: { type: Type.INTEGER },
+                contentType: { type: Type.STRING },
+                callToAction: { type: Type.STRING }
+            },
+            required: ["title", "targetKeywords", "outline", "wordCount", "priority"]
+        };
+        
         const schema = {
             type: Type.OBJECT,
             properties: {
@@ -217,7 +306,7 @@ export class GeminiService implements AIService {
                         servicePages: { type: Type.ARRAY, items: pageSchema },
                         urgentPages: { type: Type.ARRAY, items: pageSchema },
                         locationPages: { type: Type.ARRAY, items: pageSchema },
-                        blogPosts: { type: Type.ARRAY, items: { type: Type.STRING } },
+                        blogPosts: { type: Type.ARRAY, items: blogPostSchema },
                         totalPages: { type: Type.INTEGER }
                     },
                     required: ["homepageTitle", "homepageMetaDescription", "servicePages", "urgentPages", "locationPages", "blogPosts", "totalPages"]
@@ -277,8 +366,8 @@ export class GeminiService implements AIService {
                         type: Type.OBJECT,
                         properties: {
                             day: { type: Type.INTEGER },
-                            type: { type: Type.STRING, enum: ["Blog Post", "Social Post"] },
-                            platform: { type: Type.STRING, enum: ["linkedin", "twitter", "facebook", "instagram"] },
+                            type: { type: Type.STRING },
+                            platform: { type: Type.STRING },
                             title: { type: Type.STRING },
                             details: { type: Type.STRING }
                         },
@@ -293,30 +382,113 @@ export class GeminiService implements AIService {
 
     async generateTechnicalSeo(data: BrandData): Promise<TechnicalSeoPlan> {
         const prompt = `
-            Create a technical SEO plan for a ${data.businessType} business named ${data.name} targeting the Indian market.
-            Focus on:
-            - Core Web Vitals optimizations for Indian mobile networks (3G/4G).
-            - Essential Schema markup types (e.g., LocalBusiness, Service, etc.) relevant to the industry and India.
-            - A general technical SEO checklist.
-            - Specific technical optimizations for India (e.g., payment gateways, multilingual setup, address formats).
+            Create a comprehensive technical SEO plan for a ${data.businessType} business named ${data.name} targeting the Indian market.
+            Provide detailed recommendations in the following structure:
+
+            1. On-Page Optimization: Identify specific elements that need improvement, their current state, recommended changes, impact level, and difficulty to implement.
+
+            2. Technical Issues: List critical technical problems, detailed descriptions, practical solutions, priority level, and estimated implementation time.
+
+            3. Structured Data: Recommend relevant Schema.org markup types for the business, describe their purpose, provide implementation guidance, and list benefits.
+
+            4. Site Speed: Analyze performance metrics, current values, target goals, and specific improvement strategies optimized for Indian mobile networks.
+
+            5. Mobile Optimization: Review mobile-specific aspects, current status, and actionable recommendations for Indian mobile users.
+
+            6. Local SEO: Assess local search elements, current implementation, optimization strategies, and impact on local visibility in Indian markets.
+
+            7. Implementation Priority: Provide a prioritized list of action items in order of importance.
+
+            Focus on India-specific considerations like mobile-first design for slower networks, local payment gateways, multilingual content, and regional search behavior patterns.
         `;
         const schema = {
             type: Type.OBJECT,
             properties: {
-                coreWebVitals: {
-                    type: Type.OBJECT,
-                    properties: {
-                        lcp: { type: Type.STRING },
-                        fid: { type: Type.STRING },
-                        cls: { type: Type.STRING }
-                    },
-                     required: ["lcp", "fid", "cls"]
+                onPageOptimization: {
+                    type: Type.ARRAY,
+                    items: {
+                        type: Type.OBJECT,
+                        properties: {
+                            element: { type: Type.STRING },
+                            current: { type: Type.STRING },
+                            recommended: { type: Type.STRING },
+                            impact: { type: Type.STRING },
+                            difficulty: { type: Type.STRING }
+                        },
+                        required: ["element", "current", "recommended", "impact", "difficulty"]
+                    }
                 },
-                schema: { type: Type.ARRAY, items: { type: Type.STRING } },
-                technicalChecklist: { type: Type.ARRAY, items: { type: Type.STRING } },
-                indiaSpecificOptimizations: { type: Type.ARRAY, items: { type: Type.STRING } }
+                technicalIssues: {
+                    type: Type.ARRAY,
+                    items: {
+                        type: Type.OBJECT,
+                        properties: {
+                            issue: { type: Type.STRING },
+                            description: { type: Type.STRING },
+                            solution: { type: Type.STRING },
+                            priority: { type: Type.STRING },
+                            estimatedTime: { type: Type.STRING }
+                        },
+                        required: ["issue", "description", "solution", "priority", "estimatedTime"]
+                    }
+                },
+                structuredData: {
+                    type: Type.ARRAY,
+                    items: {
+                        type: Type.OBJECT,
+                        properties: {
+                            type: { type: Type.STRING },
+                            description: { type: Type.STRING },
+                            implementation: { type: Type.STRING },
+                            benefits: { type: Type.ARRAY, items: { type: Type.STRING } }
+                        },
+                        required: ["type", "description", "implementation", "benefits"]
+                    }
+                },
+                siteSpeed: {
+                    type: Type.ARRAY,
+                    items: {
+                        type: Type.OBJECT,
+                        properties: {
+                            metric: { type: Type.STRING },
+                            current: { type: Type.STRING },
+                            target: { type: Type.STRING },
+                            improvement: { type: Type.STRING }
+                        },
+                        required: ["metric", "current", "target", "improvement"]
+                    }
+                },
+                mobileOptimization: {
+                    type: Type.ARRAY,
+                    items: {
+                        type: Type.OBJECT,
+                        properties: {
+                            aspect: { type: Type.STRING },
+                            status: { type: Type.STRING },
+                            recommendation: { type: Type.STRING }
+                        },
+                        required: ["aspect", "status", "recommendation"]
+                    }
+                },
+                localSeo: {
+                    type: Type.ARRAY,
+                    items: {
+                        type: Type.OBJECT,
+                        properties: {
+                            element: { type: Type.STRING },
+                            current: { type: Type.STRING },
+                            optimization: { type: Type.STRING },
+                            impact: { type: Type.STRING }
+                        },
+                        required: ["element", "current", "optimization", "impact"]
+                    }
+                },
+                implementationPriority: {
+                    type: Type.ARRAY,
+                    items: { type: Type.STRING }
+                }
             },
-            required: ["coreWebVitals", "schema", "technicalChecklist", "indiaSpecificOptimizations"]
+            required: ["onPageOptimization", "technicalIssues", "structuredData", "siteSpeed", "mobileOptimization", "localSeo", "implementationPriority"]
         };
         return this.generateWithSchema<TechnicalSeoPlan>(prompt, schema);
     }
@@ -429,5 +601,62 @@ export class GeminiService implements AIService {
         };
 
         return this.generateWithSchema<SalesInsight[]>(prompt, schema);
+    }
+
+    async generateRealAnalytics(strategy: AllData): Promise<{ keywords: number; contentPieces: number; socialPosts: number; estimatedReach: number; competitiveScore: number; seoScore: number }> {
+        const prompt = `
+            Based on the complete SEO strategy generated, calculate real analytics metrics.
+
+            **Strategy Data:**
+            - Brand: ${strategy.brandData?.name}
+            - Keywords Generated: ${JSON.stringify({
+                primary: strategy.keywordStrategy?.primaryKeywords?.length || 0,
+                longTail: strategy.keywordStrategy?.longTailKeywords?.length || 0,
+                location: strategy.keywordStrategy?.locationKeywords?.length || 0,
+                service: strategy.keywordStrategy?.serviceKeywords?.length || 0,
+                problem: strategy.keywordStrategy?.problemKeywords?.length || 0,
+                urgent: strategy.keywordStrategy?.urgentKeywords?.length || 0
+            })}
+            - Content Plan: ${JSON.stringify({
+                blogPosts: strategy.contentPlan?.blogPosts?.length || 0,
+                landingPages: strategy.contentPlan?.landingPages?.length || 0,
+                emailCampaigns: strategy.contentPlan?.emailCampaigns?.length || 0
+            })}
+            - Social Media: ${JSON.stringify({
+                linkedin: strategy.socialPosts?.linkedin?.length || 0,
+                twitter: strategy.socialPosts?.twitter?.length || 0,
+                facebook: strategy.socialPosts?.facebook?.length || 0,
+                instagram: strategy.socialPosts?.instagram?.length || 0
+            })}
+            - SEO Audit Score: ${strategy.seoAudit?.overallScore || 0}
+            - Target Cities: ${strategy.brandData?.selectedCities?.join(', ') || 'N/A'}
+            - Business Type: ${strategy.brandData?.businessType || 'N/A'}
+
+            **Task:**
+            Calculate real analytics based on the actual generated content:
+            1. **keywords**: Total unique keywords across all categories
+            2. **contentPieces**: Total content pieces (blog posts + landing pages + email campaigns)
+            3. **socialPosts**: Total social media posts across all platforms
+            4. **estimatedReach**: Estimated monthly reach based on keyword volume, location scope, and content pieces (be realistic for Indian market)
+            5. **competitiveScore**: Competitive analysis score based on keyword difficulty and market competition (0-100)
+            6. **seoScore**: Overall SEO readiness score based on audit results and strategy completeness (0-100)
+
+            Provide realistic numbers based on actual strategy data, not generic estimates.
+        `;
+
+        const schema = {
+            type: Type.OBJECT,
+            properties: {
+                keywords: { type: Type.INTEGER, description: "Total number of unique keywords generated across all categories" },
+                contentPieces: { type: Type.INTEGER, description: "Total number of content pieces planned" },
+                socialPosts: { type: Type.INTEGER, description: "Total number of social media posts across all platforms" },
+                estimatedReach: { type: Type.INTEGER, description: "Estimated monthly reach based on strategy scope" },
+                competitiveScore: { type: Type.INTEGER, description: "Competitive analysis score (0-100)" },
+                seoScore: { type: Type.INTEGER, description: "Overall SEO readiness score (0-100)" }
+            },
+            required: ["keywords", "contentPieces", "socialPosts", "estimatedReach", "competitiveScore", "seoScore"]
+        };
+
+        return this.generateWithSchema<{ keywords: number; contentPieces: number; socialPosts: number; estimatedReach: number; competitiveScore: number; seoScore: number }>(prompt, schema);
     }
 }

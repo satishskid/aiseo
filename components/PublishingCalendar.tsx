@@ -31,14 +31,15 @@ export const PublishingCalendar: React.FC<PublishingCalendarProps> = ({ plan, is
     const calendarDays = Array.from({ length: 28 }, (_, i) => i + 1);
 
     // Group events by date for display
-    const eventsByDay = plan.calendar.reduce((acc, event) => {
-        const dayNumber = new Date(event.date).getDate();
-        if (!acc[dayNumber]) {
-            acc[dayNumber] = [];
-        }
-        acc[dayNumber].push(event);
-        return acc;
-    }, {} as Record<number, CalendarEvent[]>);
+    const eventsByDay = (plan.calendar && Array.isArray(plan.calendar)) ? 
+        plan.calendar.reduce((acc, event) => {
+            const dayNumber = new Date(event.date).getDate();
+            if (!acc[dayNumber]) {
+                acc[dayNumber] = [];
+            }
+            acc[dayNumber].push(event);
+            return acc;
+        }, {} as Record<number, CalendarEvent[]>) : {};
 
     return (
         <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 mt-6 animate-contentAppear">
@@ -48,15 +49,21 @@ export const PublishingCalendar: React.FC<PublishingCalendarProps> = ({ plan, is
             <div className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bg-white p-4 rounded-lg shadow">
                     <h4 className="font-bold text-gray-700">🗓️ Content Types</h4>
-                    <p className="text-sm text-gray-600 mt-1">{plan.contentTypes.length} different content types planned</p>
+                    <p className="text-sm text-gray-600 mt-1">
+                        {plan.contentTypes && Array.isArray(plan.contentTypes) ? plan.contentTypes.length : 0} different content types planned
+                    </p>
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow">
                     <h4 className="font-bold text-gray-700">📊 Distribution Channels</h4>
-                    <p className="text-sm text-gray-600 mt-1">{plan.distributionChannels.length} channels configured</p>
+                    <p className="text-sm text-gray-600 mt-1">
+                        {plan.distributionChannels && Array.isArray(plan.distributionChannels) ? plan.distributionChannels.length : 0} channels configured
+                    </p>
                 </div>
                  <div className="bg-white p-4 rounded-lg shadow">
                     <h4 className="font-bold text-gray-700">📈 Timeline Items</h4>
-                    <p className="text-sm text-gray-600 mt-1">{plan.timeline.length} weeks planned</p>
+                    <p className="text-sm text-gray-600 mt-1">
+                        {plan.timeline && Array.isArray(plan.timeline) ? plan.timeline.length : 0} weeks planned
+                    </p>
                 </div>
             </div>
 
