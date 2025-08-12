@@ -1,14 +1,14 @@
 import type { CalendarEvent } from '../types';
 
 export const exportToGoogleCalendar = (event: CalendarEvent): void => {
-  const startDate = new Date(event.date);
-  const endDate = new Date(event.date);
+  const startDate = new Date(event.start);
+  const endDate = new Date(event.start);
   endDate.setHours(endDate.getHours() + 1); // Default 1 hour duration
 
   const googleCalendarUrl = new URL('https://calendar.google.com/calendar/render');
   googleCalendarUrl.searchParams.append('action', 'TEMPLATE');
   googleCalendarUrl.searchParams.append('text', event.title);
-  googleCalendarUrl.searchParams.append('details', event.description || '');
+  googleCalendarUrl.searchParams.append('details', event.extendedProps.description || '');
   googleCalendarUrl.searchParams.append('dates', `${formatGoogleDate(startDate)}/${formatGoogleDate(endDate)}`);
 
   window.open(googleCalendarUrl.toString(), '_blank');
@@ -39,8 +39,8 @@ function generateICSContent(events: CalendarEvent[]): string {
   ];
 
   events.forEach(event => {
-    const startDate = new Date(event.date);
-    const endDate = new Date(event.date);
+    const startDate = new Date(event.start);
+    const endDate = new Date(event.start);
     endDate.setHours(endDate.getHours() + 1);
 
     lines.push(
@@ -50,8 +50,8 @@ function generateICSContent(events: CalendarEvent[]): string {
       `DTSTART:${formatICSDate(startDate)}`,
       `DTEND:${formatICSDate(endDate)}`,
       `SUMMARY:${escapeICS(event.title)}`,
-      `DESCRIPTION:${escapeICS(event.description || '')}`,
-      `CATEGORIES:${event.type.toUpperCase()}`,
+      `DESCRIPTION:${escapeICS(event.extendedProps.description || '')}`,
+      `CATEGORIES:${event.extendedProps.type.toUpperCase()}`,
       'END:VEVENT'
     );
   });
@@ -63,10 +63,10 @@ function generateICSContent(events: CalendarEvent[]): string {
 function generateCSVContent(events: CalendarEvent[]): string {
   const headers = ['Date', 'Title', 'Type', 'Description'];
   const rows = events.map(event => [
-    event.date,
+    event.start,
     `"${event.title.replace(/"/g, '""')}"`,
-    event.type,
-    `"${(event.description || '').replace(/"/g, '""')}"`
+    event.extendedProps.type,
+    `"${(event.extendedProps.description || '').replace(/"/g, '""')}"`
   ]);
 
   return [headers.join(','), ...rows.map(row => row.join(','))].join('\n');

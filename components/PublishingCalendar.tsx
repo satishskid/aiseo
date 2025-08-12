@@ -1,9 +1,8 @@
-
 import React from 'react';
-import type { PublishingPlan, CalendarEvent } from '../types';
+import type { CalendarEvent } from '../types';
 
 interface PublishingCalendarProps {
-    plan: PublishingPlan | null;
+    events: CalendarEvent[];
     isLoading: boolean;
     onEventClick: (event: CalendarEvent) => void;
 }
@@ -17,53 +16,47 @@ const LoadingSpinner: React.FC = () => (
 
 const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-export const PublishingCalendar: React.FC<PublishingCalendarProps> = ({ plan, isLoading, onEventClick }) => {
+export const PublishingCalendar: React.FC<PublishingCalendarProps> = ({ events, isLoading, onEventClick }) => {
     if (isLoading) {
         return <LoadingSpinner />;
     }
-    if (!plan) {
+    if (!events || events.length === 0) {
         return <p className="text-gray-500 italic p-4 text-center">Your publishing plan will appear here once generated.</p>;
     }
 
-    const firstDay = 1; // Assuming calendar starts on day 1
-    const startDayOfWeek = new Date(new Date().getFullYear(), new Date().getMonth(), firstDay).getDay();
+    const firstDay = new Date(events[0]?.start || new Date()).getDate();
+    const startDayOfWeek = new Date(new Date(events[0]?.start || new Date()).setDate(1)).getDay();
     const emptyCells = Array(startDayOfWeek).fill(null);
     const calendarDays = Array.from({ length: 28 }, (_, i) => i + 1);
 
     // Group events by date for display
-    const eventsByDay = (plan.calendar && Array.isArray(plan.calendar)) ? 
-        plan.calendar.reduce((acc, event) => {
-            const dayNumber = new Date(event.date).getDate();
-            if (!acc[dayNumber]) {
-                acc[dayNumber] = [];
-            }
-            acc[dayNumber].push(event);
-            return acc;
-        }, {} as Record<number, CalendarEvent[]>) : {};
+    const eventsByDay = events.reduce((acc, event) => {
+        const dayNumber = new Date(event.start).getDate();
+        if (!acc[dayNumber]) {
+            acc[dayNumber] = [];
+        }
+        acc[dayNumber].push(event);
+        return acc;
+    }, {} as Record<number, CalendarEvent[]>);
 
     return (
         <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 mt-6 animate-contentAppear">
             <h3 className="text-xl font-bold text-gray-800 mb-4">Actionable Publishing Plan</h3>
             
-            {/* Publishing Strategy Summary */}
             <div className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bg-white p-4 rounded-lg shadow">
-                    <h4 className="font-bold text-gray-700">🗓️ Content Types</h4>
-                    <p className="text-sm text-gray-600 mt-1">
-                        {plan.contentTypes && Array.isArray(plan.contentTypes) ? plan.contentTypes.length : 0} different content types planned
-                    </p>
+                    <h4 className="font-bold text-gray-700">🗓️ Content Items</h4>
+                    <p className="text-sm text-gray-600 mt-1">{events.length} items planned</p>
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow">
                     <h4 className="font-bold text-gray-700">📊 Distribution Channels</h4>
                     <p className="text-sm text-gray-600 mt-1">
-                        {plan.distributionChannels && Array.isArray(plan.distributionChannels) ? plan.distributionChannels.length : 0} channels configured
+                        {[...new Set(events.map(e => e.extendedProps.platform))].length} channels configured
                     </p>
                 </div>
                  <div className="bg-white p-4 rounded-lg shadow">
-                    <h4 className="font-bold text-gray-700">📈 Timeline Items</h4>
-                    <p className="text-sm text-gray-600 mt-1">
-                        {plan.timeline && Array.isArray(plan.timeline) ? plan.timeline.length : 0} weeks planned
-                    </p>
+                    <h4 className="font-bold text-gray-700">📈 Timeline</h4>
+                    <p className="text-sm text-gray-600 mt-1">Covering 4 weeks</p>
                 </div>
             </div>
 
@@ -82,7 +75,7 @@ export const PublishingCalendar: React.FC<PublishingCalendarProps> = ({ plan, is
                                     key={i}
                                     onClick={() => onEventClick(event)}
                                     className={`w-full text-left text-xs p-1 rounded transition-colors duration-200 truncate ${
-                                        event.type === 'Blog Post' 
+                                        event.extendedProps.type === 'Blog Post' 
                                         ? 'bg-green-100 hover:bg-green-200 text-green-800'
                                         : 'bg-blue-100 hover:bg-blue-200 text-blue-800'
                                     }`}

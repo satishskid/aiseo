@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import type { SocialPlatform } from '../types';
+import type { SocialPlatform, SocialPost } from '../types';
 
 interface SocialCardProps {
     platform: {
@@ -9,7 +9,7 @@ interface SocialCardProps {
         color: string;
         copyAction: string;
     };
-    posts: string[];
+    posts: SocialPost[];
 }
 
 export const SocialCard: React.FC<SocialCardProps> = ({ platform, posts }) => {
@@ -41,14 +41,25 @@ export const SocialCard: React.FC<SocialCardProps> = ({ platform, posts }) => {
             <div className="space-y-5 max-h-96 overflow-y-auto pr-2">
                 {posts.map((post, index) => (
                     <div key={index} className="bg-white/70 backdrop-blur-sm p-4 rounded-xl border border-gray-100 shadow-elegant hover:shadow-depth transition-all duration-300">
-                        <p className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed mb-3 font-medium">{post}</p>
+                        <p className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed mb-3 font-medium">{post.content}</p>
+                        <div className="flex flex-wrap gap-2 mb-3">
+                            {post.hashtags.map(tag => (
+                                <span key={tag} className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full font-medium">#{tag}</span>
+                            ))}
+                        </div>
+                        <div className="text-xs text-gray-600 mb-3">
+                            <strong>Best time to post:</strong> {post.bestTime}
+                        </div>
+                        <div className="text-xs text-green-700 font-bold mb-3">
+                            <strong>Call to Action:</strong> {post.callToAction}
+                        </div>
                         <div className="flex justify-between items-center">
                             <div className="text-xs text-gray-700 flex items-center gap-2 font-medium">
                                 <span className="w-2 h-2 bg-green-400 rounded-full"></span>
                                 Ready to publish
                             </div>
                             <button 
-                                onClick={() => handleCopy(post, index)}
+                                onClick={() => handleCopy(post.content, index)}
                                 className={`text-white border-none py-2 px-4 rounded-lg text-xs font-medium cursor-pointer transition-all duration-300 hover:scale-105 shadow-elegant
                                   ${copiedStates[index] 
                                     ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700' 

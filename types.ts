@@ -1,5 +1,15 @@
 export type SocialPlatform = 'linkedin' | 'twitter' | 'facebook' | 'instagram';
 
+export type ApiProviderId = 'gemini' | 'groq' | 'openrouter' | 'claude' | 'openai';
+
+export interface ApiKeys {
+  gemini?: string;
+  groq?: string;
+  openrouter?: string;
+  claude?: string;
+  openai?: string;
+}
+
 export interface InitialBrandInput {
   name: string;
   website: string;
@@ -267,24 +277,40 @@ export interface KPI {
   measurement: string;
 }
 
+export interface RawCalendarItem {
+  day: number;
+  type: string;
+  platform: string;
+  title: string;
+  details: string;
+}
+
 export interface PublishingPlan {
-  calendar: CalendarEvent[];
-  contentTypes: ContentType[];
-  distributionChannels: DistributionChannel[];
-  timeline: TimelineItem[];
+  expertAdvice: {
+    publishingCadence: string;
+    strategyDuration: string;
+    metricsToTrack: string[];
+  };
+  calendar: RawCalendarItem[];
 }
 
 export interface CalendarEvent {
   id: string;
   title: string;
-  date: string;
-  time: string;
-  type: string;
-  platform: string;
-  description: string;
-  keywords: string[];
-  status: 'planned' | 'in-progress' | 'completed';
-  priority: 'high' | 'medium' | 'low';
+  start: string; // Changed from date
+  allDay: boolean; // Added for FullCalendar
+  extendedProps: {
+    type: string;
+    platform: string;
+    content?: string;
+    hashtags?: string[];
+    callToAction?: string;
+    visualSuggestion?: string;
+    status: 'planned' | 'in-progress' | 'completed';
+    priority?: 'high' | 'medium' | 'low';
+    description?: string;
+    keywords?: string[];
+  };
 }
 
 export interface ContentType {
@@ -344,6 +370,7 @@ export interface PerformanceAnalysis {
     salesConversion: string;
     roiProjection: string;
   };
+  projections?: ProjectedResult[]; // Added for compatibility, but let's use projectedResults
 }
 
 export interface PerformanceMetric {
@@ -392,17 +419,31 @@ export interface CompetitorInsight {
   opportunity: string;
 }
 
+export interface AllData {
+  brandData: BrandData | null;
+  seoAudit: SeoAudit | null;
+  keywordStrategy: KeywordStrategy | null;
+  contentPlan: ContentPlan | null;
+  socialPosts: SocialPosts | null;
+  publishingPlan: PublishingPlan | null;
+  technicalSeoPlan: TechnicalSeoPlan | null;
+  conversionPlan: ConversionPlan | null;
+  performanceAnalysis: PerformanceAnalysis | null;
+  salesInsights: SalesInsight[] | [];
+  structuredData: StructuredDataOutput | null;
+}
+
 export interface SeoAudit {
-  overallScore: number;
-  technicalScore: number;
-  contentScore: number;
-  backlinksScore: number;
-  userExperienceScore: number;
-  localSeoScore: number;
-  issues: AuditIssue[];
-  opportunities: AuditOpportunity[];
-  recommendations: AuditRecommendation[];
-  competitorAnalysis: CompetitorAnalysis[];
+    overallScore: number;
+    technicalScore: number;
+    contentScore: number;
+    backlinksScore: number;
+    userExperienceScore: number;
+    localSeoScore: number;
+    issues: AuditIssue[];
+    opportunities: AuditOpportunity[];
+    recommendations: AuditRecommendation[];
+    competitorAnalysis: CompetitorAnalysis[];
 }
 
 export interface AuditIssue {
@@ -453,28 +494,3 @@ export interface Project {
   data: AllData;
   status: 'active' | 'completed' | 'archived';
 }
-
-export interface AllData {
-  brandData: BrandData | null;
-  seoAudit: SeoAudit | null;
-  keywordStrategy: KeywordStrategy | null;
-  contentPlan: ContentPlan | null;
-  socialPosts: SocialPosts | null;
-  publishingPlan: PublishingPlan | null;
-  technicalSeoPlan: TechnicalSeoPlan | null;
-  conversionPlan: ConversionPlan | null;
-  performanceAnalysis: PerformanceAnalysis | null;
-  structuredData?: StructuredDataOutput | null;
-  analyticsData?: AnalyticsData;
-
-}
-
-export interface ApiKeys {
-  gemini: string;
-  openai: string;
-  claude: string;
-  groq: string;
-  openrouter: string;
-}
-
-export type ApiProviderId = keyof ApiKeys;

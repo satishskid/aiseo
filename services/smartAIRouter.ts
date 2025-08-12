@@ -20,9 +20,9 @@ export class SmartAIRouter {
     confidence: number;
   } {
     // Find providers that have API keys
-    const availableProviders = Object.entries(apiKeys)
+    const availableProviders = (Object.entries(apiKeys) as [ApiProviderId, string][])
       .filter(([_, key]) => key && key.trim() !== '')
-      .map(([providerId]) => providerId as ApiProviderId);
+      .map(([providerId]) => providerId);
 
     if (availableProviders.length === 0) {
       throw new Error('No API keys configured');
@@ -70,7 +70,7 @@ export class SmartAIRouter {
     usage: number;
     efficiency: number;
   }> {
-    const availableProviders = Object.entries(apiKeys)
+    const availableProviders = (Object.entries(apiKeys) as [ApiProviderId, string][])
       .filter(([_, key]) => key && key.trim() !== '')
       .map(([providerId]) => providerId);
 

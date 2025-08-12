@@ -11,20 +11,8 @@ interface ApiKeySectionProps {
 export const ApiKeySection: React.FC<ApiKeySectionProps> = ({ onOpenFullManager }) => {
   const { apiKeys, setApiKeys } = useApiKey();
   const [localKeys, setLocalKeys] = useState<ApiKeys>(apiKeys);
-  const [validating, setValidating] = useState<Record<ApiProviderId, boolean>>({
-    gemini: false,
-    openai: false,
-    claude: false,
-    groq: false,
-    openrouter: false
-  });
-  const [validationResults, setValidationResults] = useState<Record<ApiProviderId, boolean | null>>({
-    gemini: null,
-    openai: null,
-    claude: null,
-    groq: null,
-    openrouter: null
-  });
+  const [validating, setValidating] = useState<Partial<Record<ApiProviderId, boolean>>>({});
+  const [validationResults, setValidationResults] = useState<Partial<Record<ApiProviderId, boolean | null>>>({});
 
   const handleKeyChange = (providerId: ApiProviderId, value: string) => {
     const newKeys = { ...localKeys, [providerId]: value };
@@ -54,7 +42,7 @@ export const ApiKeySection: React.FC<ApiKeySectionProps> = ({ onOpenFullManager 
   // Get the primary provider (Gemini) for quick setup
   const primaryProvider = API_PROVIDERS.find(p => p.rank === 1 && p.isEnabled);
   const hasAnyKeys = Object.values(apiKeys).some(key => key && key.length > 0);
-  const validKeysCount = Object.entries(validationResults).filter(([, isValid]) => isValid === true).length;
+  const validKeysCount = Object.values(validationResults).filter(isValid => isValid === true).length;
 
   return (
     <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200 mb-8">

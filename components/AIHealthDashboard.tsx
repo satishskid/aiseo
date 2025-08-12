@@ -403,7 +403,9 @@ export const AIHealthDashboard: React.FC<AIHealthDashboardProps> = ({ onStatusCh
       publishingPlan: null,
       technicalSeoPlan: null,
       conversionPlan: null,
-      performanceAnalysis: null
+      performanceAnalysis: null,
+      salesInsights: [],
+      structuredData: null,
     };
 
     const testPerformance: PerformanceInputs = {

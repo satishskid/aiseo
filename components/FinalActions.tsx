@@ -1,6 +1,5 @@
-
 import React from 'react';
-import type { AllData } from '../types';
+import type { AllData, KeywordStrategy, SocialPlatform } from '../types';
 import { baseButtonClasses, primaryButtonClasses, secondaryButtonClasses, analyticsButtonClasses } from '../constants';
 
 const downloadFile = (filename: string, content: string, type: string) => {
@@ -15,8 +14,19 @@ const downloadFile = (filename: string, content: string, type: string) => {
     URL.revokeObjectURL(url);
 };
 
+const escapeCsvField = (field: any): string => {
+    if (field === null || field === undefined) {
+        return '""';
+    }
+    const stringField = String(field);
+    // Replace quotes with double quotes and wrap in quotes
+    const escapedField = stringField.replace(/"/g, '""');
+    return `"${escapedField}"`;
+};
+
+
 export const FinalActions: React.FC<{ allData: AllData }> = ({ allData }) => {
-    const { brandData, keywordStrategy, contentPlan, technicalSeoPlan, conversionPlan, performanceAnalysis } = allData;
+    const { brandData, keywordStrategy, contentPlan, technicalSeoPlan, conversionPlan, performanceAnalysis, socialPosts, publishingPlan } = allData;
     
     const handleExport = (format: 'md' | 'csv') => {
         if (!brandData) return;
@@ -28,69 +38,110 @@ export const FinalActions: React.FC<{ allData: AllData }> = ({ allData }) => {
             content += `## Brand Information\n${JSON.stringify(brandData, null, 2)}\n\n`;
             content += `## Keyword Strategy\n${JSON.stringify(keywordStrategy, null, 2)}\n\n`;
             content += `## Content Plan\n${JSON.stringify(contentPlan, null, 2)}\n\n`;
+            content += `## Social Posts\n${JSON.stringify(socialPosts, null, 2)}\n\n`;
+            content += `## Publishing Plan\n${JSON.stringify(publishingPlan, null, 2)}\n\n`;
             content += `## Technical SEO\n${JSON.stringify(technicalSeoPlan, null, 2)}\n\n`;
             content += `## Conversion Plan\n${JSON.stringify(conversionPlan, null, 2)}\n\n`;
             content += `## Performance Analysis\n${JSON.stringify(performanceAnalysis, null, 2)}\n\n`;
-            content += `## Social Posts\n${JSON.stringify(allData.socialPosts, null, 2)}\n\n`;
-            content += `## Publishing Plan\n${JSON.stringify(allData.publishingPlan, null, 2)}\n\n`;
             downloadFile(`${filename}.md`, content, 'text/markdown');
         } else if (format === 'csv') {
-            content = "Category,Item,Details\n";
+            const headers = ["Category", "Sub-Category", "Item", "Details", "Details 2", "Details 3"];
+            content = headers.join(',') + '\n';
+
+            // Helper to add a row
+            const addRow = (cat: string, subCat: string, item: string, ...details: any[]) => {
+                const row = [cat, subCat, item, ...details].map(escapeCsvField).join(',');
+                content += row + '\n';
+            };
 
             // Brand Data
             if (brandData) {
-                content += `"Brand","Name","${brandData.name}"\n`;
-                content += `"Brand","Website","${brandData.website}"\n`;
-                content += `"Brand","Description","${brandData.description}"\n`;
+                addRow("Brand", "Core Info", "Name", brandData.name);
+                addRow("Brand", "Core Info", "Website", brandData.website);
+                addRow("Brand", "Core Info", "Description", brandData.description);
+                addRow("Brand", "Core Info", "Target Customer", brandData.targetCustomer);
+                addRow("Brand", "Core Info", "Key Services", brandData.keyServices);
             }
 
             // Keywords
-            keywordStrategy?.primaryKeywords.forEach(k => content += `"Keywords","Primary","${k}"\n`);
-            keywordStrategy?.longTailKeywords.forEach(k => content += `"Keywords","Long Tail","${k}"\n`);
-            keywordStrategy?.locationKeywords.forEach(k => content += `"Keywords","Location","${k}"\n`);
-            keywordStrategy?.competitorKeywords.forEach(k => content += `"Keywords","Competitor","${k}"\n`);
+            if (keywordStrategy) {
+                const keywordFields: {key: keyof KeywordStrategy, label: string}[] = [
+                    { key: 'primaryKeywords', label: 'Primary' },
+                    { key: 'urgentKeywords', label: 'Urgent' },
+                    { key: 'serviceKeywords', label: 'Service' },
+                    { key: 'problemKeywords', label: 'Problem-Solving' },
+                    { key: 'longTailKeywords', label: 'Long Tail' },
+                    { key: 'locationKeywords', label: 'Location-Based' },
+                    { key: 'competitorKeywords', label: 'Competitor' },
+                    { key: 'keywordOpportunities', label: 'Opportunities' },
+                    { key: 'seasonalKeywords', label: 'Seasonal' },
+                    { key: 'voiceSearchKeywords', label: 'Voice Search' },
+                ];
+                keywordFields.forEach(({key, label}) => {
+                    const keywords = keywordStrategy[key];
+                    if (Array.isArray(keywords)) {
+                        keywords.forEach(k => addRow("Keywords", label, k));
+                    }
+                });
+            }
 
             // Content Plan
-            contentPlan?.blogPosts.forEach((post, index) => {
-                content += `"Content","Blog Post ${index + 1}","${post.title}"\n`;
-            });
+            if (contentPlan) {
+                contentPlan.blogPosts.forEach(post => {
+                    addRow("Content", "Blog Post", post.title, post.targetKeywords.join(', '), post.metaDescription, `Outline: ${post.outline.join(' | ')}`);
+                });
+                contentPlan.landingPages.forEach(page => {
+                    addRow("Content", "Landing Page", page.title, page.targetKeywords.join(', '), page.purpose);
+                });
+            }
 
-            contentPlan?.landingPages.forEach((page, index) => {
-                content += `"Content","Landing Page ${index + 1}","${page.title}"\n`;
-            });
+            // Social Posts
+            if (socialPosts) {
+                Object.keys(socialPosts).forEach(platform => {
+                    socialPosts[platform as SocialPlatform].forEach(post => {
+                        addRow("Social", platform, post.content, post.hashtags.join(' '), post.callToAction);
+                    });
+                });
+            }
+
+            // Publishing Plan
+            if (publishingPlan) {
+                publishingPlan.calendar.forEach(event => {
+                    addRow("Publishing", event.type, `Day ${event.day}: ${event.title}`, event.details, event.platform);
+                });
+            }
 
             // Technical SEO
-            technicalSeoPlan?.onPageOptimization.forEach((item, index) => {
-                content += `"Technical SEO","On-Page ${index + 1}","${item.element}"\n`;
-            });
+            if (technicalSeoPlan) {
+                technicalSeoPlan.onPageOptimization.forEach(item => {
+                    addRow("Technical SEO", "On-Page", item.element, item.recommended, `Impact: ${item.impact}`, `Difficulty: ${item.difficulty}`);
+                });
+                technicalSeoPlan.technicalIssues.forEach(item => {
+                    addRow("Technical SEO", "Issues", item.issue, item.solution, `Priority: ${item.priority}`);
+                });
+            }
 
-            technicalSeoPlan?.structuredData.forEach((item, index) => {
-                content += `"Technical SEO","Structured Data ${index + 1}","${item.type}"\n`;
-            });
-
-            // Conversion Optimization
-            conversionPlan?.conversionGoals.forEach((goal, index) => {
-                content += `"Conversion","Goal ${index + 1}","${goal.goal}"\n`;
-            });
-
-            conversionPlan?.userJourney.forEach((journey, index) => {
-                content += `"Conversion","User Journey ${index + 1}","${journey.stage}"\n`;
-            });
+            // Conversion Plan
+            if (conversionPlan) {
+                conversionPlan.conversionGoals.forEach(goal => {
+                    addRow("Conversion", "Goal", goal.goal, `Target: ${goal.targetRate}`, `Current: ${goal.currentRate}`);
+                });
+                conversionPlan.optimizationTactics.forEach(tactic => {
+                    addRow("Conversion", "Tactic", tactic.tactic, tactic.description, `Impact: ${tactic.expectedImpact}`);
+                });
+            }
 
             // Performance Analysis
-            performanceAnalysis?.currentPerformance.forEach((item, index) => {
-                content += `"Performance","Current Performance ${index + 1}","${item.metric}: ${item.current}"\n`;
-            });
+            if (performanceAnalysis) {
+                performanceAnalysis.recommendations.forEach(rec => {
+                    addRow("Performance", "Recommendation", rec.action, rec.rationale, `Priority: ${rec.priority}`);
+                });
+                performanceAnalysis.opportunities.forEach(opp => {
+                    addRow("Performance", "Opportunity", opp.area, `Potential: ${opp.potential}`, `Impact: ${opp.impact}`);
+                });
+            }
 
-            performanceAnalysis?.opportunities.forEach((item, index) => {
-                content += `"Performance","Opportunity ${index + 1}","${item.area}"\n`;
-            });
-
-            performanceAnalysis?.recommendations.forEach((item, index) => {
-                content += `"Performance","Recommendation ${index + 1}","${item.action}"\n`;
-            });
-
-            downloadFile(`${filename}.csv`, content, 'text/csv');
+            downloadFile(`${filename}.csv`, content, 'text/csv;charset=utf-8;');
         }
     };
 

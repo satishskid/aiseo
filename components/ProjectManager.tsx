@@ -76,8 +76,8 @@ export const ProjectManager: React.FC<ProjectManagerProps> = ({
         conversionPlan: null,
         publishingPlan: null,
         performanceAnalysis: null,
+        salesInsights: [],
         structuredData: null,
-        analyticsData: { keywords: 0, contentPieces: 0, socialPosts: 0, estimatedReach: 0, competitiveScore: 0, seoScore: 0 }
       },
       status: 'active'
     };
