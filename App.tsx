@@ -1304,8 +1304,10 @@ Platform User
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                       {SOCIAL_PLATFORMS.map(platform => {
                         const posts = socialPosts[platform.id as keyof SocialPosts] || [];
-                        // Posts are already strings from AI service, no need to extract .content
-                        const postContents = posts;
+                        // Map SocialPost objects (or strings) to their textual content for display/copy
+                        const postContents = Array.isArray(posts)
+                          ? (posts as any[]).map(p => typeof p === 'string' ? p : (p?.content ?? ''))
+                          : [];
                         return (
                           <SocialCard 
                             key={`${platform.id}-${postContents.length}`} 
