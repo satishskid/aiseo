@@ -1,0 +1,3 @@
+[submodule "aiseo"]
+    path = aiseo
+    url = https://github.com/example/dummy
