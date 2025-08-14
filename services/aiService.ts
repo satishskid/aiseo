@@ -38,6 +38,7 @@ export interface AIService {
 export class GeminiService implements AIService {
     private ai: GoogleGenAI;
     private model = "gemini-2.5-flash";
+    private cache = new Map<string, any>();
 
     constructor(apiKey: string) {
         if (!apiKey) {
@@ -62,6 +63,11 @@ export class GeminiService implements AIService {
     }
 
     private async generateWithSchema<T>(prompt: string, schema: any): Promise<T> {
+        const cacheKey = prompt;
+        if (this.cache.has(cacheKey)) {
+            return this.cache.get(cacheKey) as T;
+        }
+
         const response: GenerateContentResponse = await this.ai.models.generateContent({
             model: this.model,
             contents: prompt,
@@ -82,6 +88,7 @@ export class GeminiService implements AIService {
                 this.parseKeywordJsonStrings(result);
             }
             
+            this.cache.set(cacheKey, result);
             return result;
         } catch (e) {
             console.error("Failed to parse Gemini JSON response:", response.text);

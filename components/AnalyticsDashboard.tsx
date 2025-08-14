@@ -1,4 +1,3 @@
-
 import React from 'react';
 import type { AnalyticsData } from '../types';
 import { DataSourceIndicator, SectionHeaderWithIndicator, type DataSourceType } from './DataSourceIndicator';
@@ -37,7 +36,7 @@ interface AnalyticsDashboardProps {
     onGenerate?: () => void;
 }
 
-export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ 
+export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = React.memo(({
     data, 
     isRealData = false,
     responseTime,
@@ -174,4 +173,4 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
             )}
         </div>
     );
-};
+});

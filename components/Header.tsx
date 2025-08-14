@@ -21,8 +21,9 @@ export const Header: React.FC<HeaderProps> = ({ onManageApiKeys, onManageProject
                     onClick={onOpenUserManual}
                     className="bg-black/20 hover:bg-black/30 backdrop-blur-sm text-white font-semibold py-2 px-3 md:px-4 border border-white/30 rounded-lg transition-all duration-300 text-xs md:text-sm flex items-center gap-1 md:gap-2 shadow-elegant hover:shadow-depth hover:scale-105"
                     title="Open User Manual"
+                    aria-label="Open User Manual"
                 >
-                    <span className="text-base">📖</span>
+                    <span className="text-base" role="img" aria-hidden="true">📖</span>
                     <span className="hidden sm:inline text-white font-semibold">User Manual</span>
                 </button>
 
@@ -31,8 +32,9 @@ export const Header: React.FC<HeaderProps> = ({ onManageApiKeys, onManageProject
                     onClick={onManageProjects}
                     className="bg-black/20 hover:bg-black/30 backdrop-blur-sm text-white font-semibold py-2 px-3 md:px-4 border border-white/30 rounded-lg transition-all duration-300 text-xs md:text-sm flex items-center gap-1 md:gap-2 shadow-elegant hover:shadow-depth hover:scale-105"
                     title={currentProject ? `Current: ${currentProject.name}` : 'Manage Projects'}
+                    aria-label={currentProject ? `Current: ${currentProject.name}` : 'Manage Projects'}
                 >
-                    <span className="text-base">📂</span>
+                    <span className="text-base" role="img" aria-hidden="true">📂</span>
                     {currentProject ? (
                         <span className="max-w-[60px] md:max-w-[100px] truncate hidden sm:inline text-white font-semibold">{currentProject.name}</span>
                     ) : (
@@ -45,8 +47,9 @@ export const Header: React.FC<HeaderProps> = ({ onManageApiKeys, onManageProject
                     onClick={onSignOut}
                     className="bg-black/20 hover:bg-black/30 backdrop-blur-sm text-white font-semibold py-2 px-3 md:px-4 border border-white/30 rounded-lg transition-all duration-300 text-xs md:text-sm flex items-center gap-1 md:gap-2 shadow-elegant hover:shadow-depth hover:scale-105"
                     title="Sign Out"
+                    aria-label="Sign Out"
                 >
-                    <span className="text-base">🚪</span>
+                    <span className="text-base" role="img" aria-hidden="true">🚪</span>
                     <span className="hidden sm:inline text-white font-semibold">Sign Out</span>
                 </button>
                 
@@ -72,8 +75,9 @@ export const Header: React.FC<HeaderProps> = ({ onManageApiKeys, onManageProject
                     onClick={onManageApiKeys}
                     className="bg-black/20 hover:bg-black/30 backdrop-blur-sm text-white font-semibold py-2 px-3 md:px-4 border border-white/30 rounded-lg transition-all duration-300 text-xs md:text-sm flex items-center gap-1 md:gap-2 shadow-elegant hover:shadow-depth hover:scale-105"
                     title="Manage API Keys"
+                    aria-label="Manage API Keys"
                 >
-                    <span className="text-base">🔑</span>
+                    <span className="text-base" role="img" aria-hidden="true">🔑</span>
                     <span className="hidden sm:inline text-white font-semibold">API Keys</span>
                 </button>
             </div>
